@@ -36,7 +36,7 @@ var AS = exports.AS = {
     },
 
     _replaceTrace: function(s){
-        return s.replace("trace", "AS.trace");
+        return s.replace(new RegExp("trace", "g"), "AS.trace");
     },
 
     _extractFunctions: function(s){
@@ -143,7 +143,7 @@ var AS = exports.AS = {
 
     trace: function(){
         if(console && console.log){
-            console.log(arguments);
+            console.log.apply(this, arguments);
         }
     }
 
@@ -175,7 +175,7 @@ var MODELS = {
 
     ASclass: function(n, f, v){
 
-        return {
+        var c = {
             name: n,
             functions: f,
             variables: v,
@@ -196,6 +196,12 @@ var MODELS = {
                 return result;
             }
         }
+
+        for(var i = 0; i < c.functions.length; i++){
+            c.functions[i].scopeFunctionVariables(c.variables);
+        }
+
+        return c;
     
     },
 
@@ -204,6 +210,8 @@ var MODELS = {
         return {
 
             ARGS_STRUCTURE_REG: new RegExp(":[\\w]*", "g"),
+            VARS_OPEN_STRUCTURE_REG: "[\\s\\.]",
+            VARS_CLOSE_STRUCTURE_REG: "[\\s\\.\\}\\)\\+\\-\\/\\*\\;]",
 
             modifier: m,
             methodName: n,
@@ -215,6 +223,21 @@ var MODELS = {
                var s = this.args;
                s.replace(this.ARGS_STRUCTURE_REG, "");
                return s;
+            },
+
+            scopeFunctionVariables: function(variables){
+                var corpra = "(" + variables[0].name;
+                for(var i = 1; i < variables.length; i++) corpra += "|" + variables[i].name;
+                var r = new RegExp(this.VARS_OPEN_STRUCTURE_REG + corpra + ')' + this.VARS_CLOSE_STRUCTURE_REG);
+                var match = r(this.contents);
+                while(match !== null){
+                    this.contents = this.contents.replace(r, " {{THIS}}" + match[1] + match[0].substr(match[0].indexOf(match[1]) + match[1].length));
+                    match = r(this.contents);
+                }
+                var fr = new RegExp("{{THIS}}", "g");
+                this.contents = this.contents.replace(fr, "this.");
+                console.log(this.contents);
+
             },
             
             ASForm: function(){
@@ -242,7 +265,8 @@ var MODELS = {
             },
 
             JSForm: function(){
-                return this.name + ": " + this.value + ",\n";
+                var equalIndex = this.value.indexOf('=');
+                return this.name + ": " + this.value.substr(equalIndex + 1) + ",\n";
             }
             
 

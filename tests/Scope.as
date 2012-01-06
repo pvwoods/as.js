@@ -7,6 +7,8 @@ package {
 
         public function Scope(){
             
+            this.a += 1;
+            
             var c:Number = add(a + b);
 
             trace(c);

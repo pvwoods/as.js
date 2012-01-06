@@ -13,7 +13,7 @@ package {
             ];
         public var f:String = "Hello World!";
 
-        public function Primmitives(){
+        public function Primitives(){
             
             c = a + b;
             
