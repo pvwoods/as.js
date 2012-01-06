@@ -225,6 +225,12 @@ var MODELS = {
                return s;
             },
 
+            _structureLocalVariables: function(){
+                
+                
+
+            },
+
             scopeFunctionVariables: function(variables){
                 var corpra = "(" + variables[0].name;
                 for(var i = 1; i < variables.length; i++) corpra += "|" + variables[i].name;
@@ -236,7 +242,6 @@ var MODELS = {
                 }
                 var fr = new RegExp("{{THIS}}", "g");
                 this.contents = this.contents.replace(fr, "this.");
-                console.log(this.contents);
 
             },
             
