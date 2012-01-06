@@ -8,10 +8,6 @@ package {
 
         }
 
-        public function test(){
-            //
-        }
-
     }
 
 }

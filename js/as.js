@@ -10,18 +10,26 @@ var AS = exports.AS = {
 
     CLASS_REG: "[\\s]*class[\\s]*([\\w]*)",
 
-    
+    PACKAGE_REG: new RegExp("package[\\s]*([\\w\.]*)"),
+
     /**
-     * Where the bulk fo the work happens
+     * Where the bulk of the work happens
      **/
 
+    
+    build: function(file, entryPackage, entryClass){
+       var js = this.transmogrify(file);
+       eval(js);
+       var bootstrap = "var app = ASPackageRepo." + entryPackage + (entryPackage === '' ? "":".") + entryClass + "();\n app." + entryClass + "();";
+       eval(bootstrap);
+       
+    },
 
     transmogrify: function(file){
         file = this._replaceTrace(file);
         var f = this._extractFunctions(file);
-        var c = MODELS.ASclass(this._extractClassName(file), f);
-        console.log(c.name);
-        return file;
+        var p = MODELS.ASpackage(this._extractPackage(file), MODELS.ASclass(this._extractClassName(file), f));
+        return p.JSForm();
     },
 
     _replaceTrace: function(s){
@@ -68,6 +76,10 @@ var AS = exports.AS = {
         return r(s)[2];
     },
 
+    _extractPackage: function(s){
+        return this.PACKAGE_REG(s)[1];
+    },
+
     /**
      * Getters/Setters and utility functions
      **/
@@ -77,6 +89,10 @@ var AS = exports.AS = {
     },
 
     _getClassRestructionReg: function(){
+      return new RegExp("(" + this.METHOD_MODIFIERS.join("|") + ")" + this.CLASS_REG); 
+    },
+
+    _getPackageRestructionReg: function(){
       return new RegExp("(" + this.METHOD_MODIFIERS.join("|") + ")" + this.CLASS_REG); 
     },
 
@@ -92,6 +108,26 @@ var AS = exports.AS = {
 
 var MODELS = {
     
+   ASpackage: function(p, c){
+
+        return {
+            packageName: p || "ASPackageRepo",
+            clss: c,
+
+            ASForm: function(){
+                return '';
+            },
+
+            JSForm: function(){
+                var result = "var " + this.packageName + " = {\n";
+                result += this.clss.JSForm();
+                result += "\n};";
+                return result;
+            }
+        }
+    
+    },
+
     ASclass: function(n, f){
 
         return {
@@ -103,11 +139,11 @@ var MODELS = {
             },
 
             JSForm: function(){
-                var result = this.name + ": {\n";
+                var result = this.name + ": function(){ return {\n";
                 for(var i = 0; i < this.functions.length; i++){
                     result += this.functions[i].JSForm();
                 }
-                result += "\n}";
+                result += "\n}\n}";
                 return result;
             }
         }
