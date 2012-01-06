@@ -20,6 +20,7 @@ var AS = exports.AS = {
         file = this._replaceTrace(file);
         var f = this._extractFunctions(file);
         var c = MODELS.ASclass(this._extractClassName(file), f);
+        console.log(c.name);
         return file;
     },
 
@@ -63,7 +64,8 @@ var AS = exports.AS = {
 
 
     _extractClassName: function(s){
-        var r = 
+        var r = this._getClassRestructionReg();
+        return r(s)[2];
     },
 
     /**
