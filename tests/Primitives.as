@@ -6,7 +6,11 @@ package {
         public var b:Number = 2;
         public var c:int = 0;
         public var d:Boolean = true;
-        public var e:Array = ["a", "b", "c", "d"];
+        public var e:Array =
+            [
+                "a", "b",
+                "c", "d"
+            ];
         public var f:String = "Hello World!";
 
         public function Primmitives(){

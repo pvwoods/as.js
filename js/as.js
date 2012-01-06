@@ -6,6 +6,8 @@ var AS = exports.AS = {
 
     METHOD_MODIFIERS: ["public", "private", "protected", "internal"],
 
+    CLASS_VARIABLE_REG: "[\\s]*var[\\s]*([\\w]*)([\\:\\s\\w]*)?",
+
     FUNCTION_REG: "[\\s]*function[\\s]*([\\w]*)\\(([\\w\\s\\:\\,]*)\\)[\\s\\:\\w]*",
 
     CLASS_REG: "[\\s]*class[\\s]*([\\w]*)",
@@ -27,8 +29,9 @@ var AS = exports.AS = {
 
     transmogrify: function(file){
         file = this._replaceTrace(file);
-        var f = this._extractFunctions(file);
-        var p = MODELS.ASpackage(this._extractPackage(file), MODELS.ASclass(this._extractClassName(file), f));
+        var vars = this._extractClassScopeVariables(file);
+        var funcs = this._extractFunctions(file);
+        var p = MODELS.ASpackage(this._extractPackage(file), MODELS.ASclass(this._extractClassName(file), funcs, vars));
         return p.JSForm();
     },
 
@@ -70,6 +73,44 @@ var AS = exports.AS = {
         return result;
     },
 
+    _extractClassScopeVariables: function(s){
+        
+        var r = this._getClassVairableRestructionReg();
+
+        var match = r(s);
+        var variables = [];
+        var v = {};
+        var a = [];
+
+        while(match !== null){
+            v = MODELS.ASClassVariable(match[1], match[2], match[3].substr(1), this._readVariableContents(s, (match.index + match[0].length)));
+            variables.push(v);
+            a = s.split("");
+            a.splice(match.index, match[0].length + v.value.length)
+            s = a.join("");
+            match = r(s);
+        }
+
+        return variables;
+
+    },
+    
+    // this current implementation is very naive.
+    // Currently, all variables must be ended by a semicolon
+    // and does not take into account that a semicolon may not
+    // actually be the end of the variable decleration
+    // i.e. public var a:String = ";";
+    _readVariableContents: function(s, i){
+        var result = s[i];
+        var c = ''
+        while(c != ';'){
+            result += c;
+            i++;
+            c = s[i];
+        }
+        return result;
+    },
+
 
     _extractClassName: function(s){
         var r = this._getClassRestructionReg();
@@ -86,6 +127,10 @@ var AS = exports.AS = {
 
     _getFunctionRestructionReg: function(){
       return new RegExp("(" + this.METHOD_MODIFIERS.join("|") + ")" + this.FUNCTION_REG); 
+    },
+
+    _getClassVairableRestructionReg: function(){
+      return new RegExp("(" + this.METHOD_MODIFIERS.join("|") + ")" + this.CLASS_VARIABLE_REG); 
     },
 
     _getClassRestructionReg: function(){
@@ -128,11 +173,12 @@ var MODELS = {
     
     },
 
-    ASclass: function(n, f){
+    ASclass: function(n, f, v){
 
         return {
             name: n,
             functions: f,
+            variables: v,
 
             ASForm: function(){
                 return '';
@@ -140,6 +186,9 @@ var MODELS = {
 
             JSForm: function(){
                 var result = this.name + ": function(){ return {\n";
+                for(var b = 0; b < this.variables.length; b++){
+                    result += this.variables[b].JSForm();
+                }
                 for(var i = 0; i < this.functions.length; i++){
                     result += this.functions[i].JSForm();
                 }
@@ -177,6 +226,28 @@ var MODELS = {
             }
 
         }
+    },
+
+    ASClassVariable: function(m, n, t, v){
+
+        return {
+            
+            modifier: m,
+            name: n,
+            type: t,
+            value: v,
+
+            ASForum: function(){
+                return this.modifier + " var " + this.name + ":" + this.type + this.value;
+            },
+
+            JSForm: function(){
+                return this.name + ": " + this.value + ",\n";
+            }
+            
+
+        }
+
     }
 
 }
