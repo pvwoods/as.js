@@ -8,7 +8,7 @@ var AS = exports.AS = {
 
     FUNCTION_REG: "[\\s]*function[\\s]*([\\w]*)\\(([\\w\\s\\:\\,]*)\\)[\\s\\:\\w]*",
 
-    CONVERSION_STEPS: [this._replaceTrace, this._restructureFunctions],
+    CLASS_REG: "[\\s]*class[\\s]*([\\w]*)",
 
     
     /**
@@ -18,7 +18,8 @@ var AS = exports.AS = {
 
     transmogrify: function(file){
         file = this._replaceTrace(file);
-        file = this._restructureFunctions(file);
+        var f = this._extractFunctions(file);
+        var c = MODELS.ASclass(this._extractClassName(file), f);
         return file;
     },
 
@@ -26,27 +27,43 @@ var AS = exports.AS = {
         return s.replace("trace", "AS.trace");
     },
 
-    _restructureFunctions: function(s){
-        var r = this._getFunctionRestructionReg();
-        var arr = r(s);
-        var functionBeginIndex = arr[4] + arr[0].length;
-
-        var f = MODELS.ASfunction(arr[1], arr[2], arr[3], "void");
+    _extractFunctions: function(s){
         
-        return s.replace(r, "[[FUNCTION]]");
+        var r = this._getFunctionRestructionReg();
+        var match = r(s);
+        var functions = [];
+        var f = {};
+        var a = [];
+
+        while(match !== null){
+            f = MODELS.ASfunction(match[1], match[2], match[3], "void", this._readFunctionContents(s, (match.index + match[0].length)));
+            functions.push(f);
+            a = s.split("");
+            a.splice(match.index, match[0].length + f.contents.length)
+            s = a.join("");
+            match = r(s);
+        }
+
+        return functions;
     },
 
     _readFunctionContents: function(s, i){
         var brackets = 1;
-        var result = '';
-        while(brackets != 0){
-            //result += 
+        var result = s[i];
+        var c = ''
+        while(brackets > 0){
+            i++;
+            c = s[i];
+            result += c;
+            if(c === "{") brackets += 1;
+            else if(c === "}") brackets -= 1;
         }
+        return result;
     },
 
 
-    _fixClassScope: function(s){
-        return s;
+    _extractClassName: function(s){
+        var r = 
     },
 
     /**
@@ -54,7 +71,11 @@ var AS = exports.AS = {
      **/
 
     _getFunctionRestructionReg: function(){
-      return new RegExp("(" + this.METHOD_MODIFIERS.join("|") + ")" + this.FUNCTION_REG, "g"); 
+      return new RegExp("(" + this.METHOD_MODIFIERS.join("|") + ")" + this.FUNCTION_REG); 
+    },
+
+    _getClassRestructionReg: function(){
+      return new RegExp("(" + this.METHOD_MODIFIERS.join("|") + ")" + this.CLASS_REG); 
     },
 
     trace: function(){
@@ -80,13 +101,18 @@ var MODELS = {
             },
 
             JSForm: function(){
-                return '';
+                var result = this.name + ": {\n";
+                for(var i = 0; i < this.functions.length; i++){
+                    result += this.functions[i].JSForm();
+                }
+                result += "\n}";
+                return result;
             }
         }
     
     },
 
-    ASfunction: function(m, n, a, r){
+    ASfunction: function(m, n, a, r, c){
 
         return {
 
@@ -96,6 +122,7 @@ var MODELS = {
             methodName: n,
             args: a,
             returnType: r,
+            contents: c,
 
             _argsJSForm: function(){
                var s = this.args;
@@ -108,7 +135,7 @@ var MODELS = {
             },
             
             JSForm: function(){
-                return this.methodName + ": function(" + this._argsJSForm() + ")";
+                return this.methodName + ": function(" + this._argsJSForm() + ")" + this.contents + ",\n";
             }
 
         }
