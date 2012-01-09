@@ -57,7 +57,8 @@ var AS = exports.AS = {
         // remove double slash comments
         s = s.replace(new RegExp("\\/\\/.*", "g"), "");
 
-        // TODO :: remove block comments
+        // remove block comments
+        s = s.replace(new RegExp("\\/\\*.*\\*\\/", "g"), "");
 
         // remove any 'this.' references
         s = s.replace(new RegExp("this\\.", ""), "");
