@@ -196,9 +196,10 @@ var MODELS = {
                 return result;
             }
         }
-
-        for(var i = 0; i < c.functions.length; i++){
-            c.functions[i].scopeFunctionVariables(c.variables);
+        if(c.variables && c.variables.length > 0){
+            for(var i = 0; i < c.functions.length; i++){
+                c.functions[i].scopeFunctionVariables(c.variables);
+            }
         }
 
         return c;
