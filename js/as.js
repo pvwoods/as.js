@@ -1,3 +1,13 @@
+/**
+ * AS.JS v0.0.1
+ * 
+ * This particular version of as.js acts
+ * as nothing more than a finicky bootstrap
+ * compiler/converter for writing the v0.1
+ * actionscript version.  Therefore, there
+ * are a lot of hacks here that will be understood as "good enough for now".
+ */
+
 var AS = exports.AS = {
     
     /**
@@ -29,6 +39,7 @@ var AS = exports.AS = {
 
     transmogrify: function(file){
         file = this._replaceTrace(file);
+        file = this._strip(file);
         var vars = this._extractClassScopeVariables(file);
         var funcs = this._extractFunctions(file);
         var p = MODELS.ASpackage(this._extractPackage(file), MODELS.ASclass(this._extractClassName(file), funcs, vars));
@@ -37,6 +48,22 @@ var AS = exports.AS = {
 
     _replaceTrace: function(s){
         return s.replace(new RegExp("trace", "g"), "AS.trace");
+    },
+    
+    
+    // strip any comments or other problems
+    _strip: function(s){
+        
+        // remove double slash comments
+        s = s.replace(new RegExp("\\/\\/.*", "g"), "");
+
+        // TODO :: remove block comments
+
+        // remove any 'this.' references
+        s = s.replace(new RegExp("this\\.", ""), "");
+
+        return s;
+
     },
 
     _extractFunctions: function(s){
@@ -196,9 +223,13 @@ var MODELS = {
                 return result;
             }
         }
-        if(c.variables && c.variables.length > 0){
+
+        var functionScopableNames = [];
+        for(var j = 0; j < c.variables.length; j++) functionScopableNames.push(c.variables[j].name);
+        for(var h = 0; h < c.functions.length; h++) functionScopableNames.push(c.functions[h].methodName);
+        if(functionScopableNames.length > 0){
             for(var i = 0; i < c.functions.length; i++){
-                c.functions[i].scopeFunctionVariables(c.variables);
+                c.functions[i].scopeFunctionVariables(functionScopableNames);
             }
         }
 
@@ -210,9 +241,9 @@ var MODELS = {
 
         return {
 
-            ARGS_STRUCTURE_REG: new RegExp(":[\\w]*", "g"),
-            VARS_OPEN_STRUCTURE_REG: "[\\s\\.]",
-            VARS_CLOSE_STRUCTURE_REG: "[\\s\\.\\}\\)\\+\\-\\/\\*\\;]",
+            TYPE_DECLERATION_STRUCTURE_REG: new RegExp(":\\w*", "gi"),
+            VARS_OPEN_STRUCTURE_REG: "[\\s\\.\\(]",
+            VARS_CLOSE_STRUCTURE_REG: "[\\s\\.\\}\\)\\+\\-\\/\\*\\;\\(\\,]",
 
             modifier: m,
             methodName: n,
@@ -222,23 +253,16 @@ var MODELS = {
 
             _argsJSForm: function(){
                var s = this.args;
-               s.replace(this.ARGS_STRUCTURE_REG, "");
-               return s;
-            },
-
-            _structureLocalVariables: function(){
-                
-                
-
+               return s.replace(this.TYPE_DECLERATION_STRUCTURE_REG, "");
             },
 
             scopeFunctionVariables: function(variables){
-                var corpra = "(" + variables[0].name;
-                for(var i = 1; i < variables.length; i++) corpra += "|" + variables[i].name;
+                var corpra = "(" + variables[0];
+                for(var i = 1; i < variables.length; i++) corpra += "|" + variables[i];
                 var r = new RegExp(this.VARS_OPEN_STRUCTURE_REG + corpra + ')' + this.VARS_CLOSE_STRUCTURE_REG);
                 var match = r(this.contents);
                 while(match !== null){
-                    this.contents = this.contents.replace(r, " {{THIS}}" + match[1] + match[0].substr(match[0].indexOf(match[1]) + match[1].length));
+                    this.contents = this.contents.replace(r, match[0][0] + "{{THIS}}" + match[1] + match[0].substr(match[0].indexOf(match[1]) + match[1].length));
                     match = r(this.contents);
                 }
                 var fr = new RegExp("{{THIS}}", "g");
@@ -251,7 +275,7 @@ var MODELS = {
             },
             
             JSForm: function(){
-                return this.methodName + ": function(" + this._argsJSForm() + ")" + this.contents + ",\n";
+                return this.methodName + ": function(" + this._argsJSForm() + ")" + this.contents.replace(this.TYPE_DECLERATION_STRUCTURE_REG, "") + ",\n";
             }
 
         }
