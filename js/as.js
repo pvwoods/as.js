@@ -63,6 +63,12 @@ var AS = exports.AS = {
         // remove any 'this.' references
         s = s.replace(new RegExp("this\\.", ""), "");
 
+        // remove static ref
+        s = s.replace("static", "");
+
+        // change constants to vars
+        s = s.replace("const", "var");
+
         return s;
 
     },
