@@ -13,6 +13,8 @@ package {
             ];
         public var f:String = "Hello World!";
 
+        public var g:int;
+
         public function Primitives(){
             
             c = a + b;
@@ -26,6 +28,8 @@ package {
             trace("e contains " + e.join(','));
 
             trace("f contains: '" + f + "'");
+
+            trace("g is " + g);
 
         }
 

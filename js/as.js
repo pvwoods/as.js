@@ -135,6 +135,7 @@ var AS = exports.AS = {
     // actually be the end of the variable decleration
     // i.e. public var a:String = ";";
     _readVariableContents: function(s, i){
+        if(s[i] === ';') return 'null';
         var result = s[i];
         var c = ''
         while(c != ';'){
