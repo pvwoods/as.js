@@ -8,6 +8,8 @@
  * are a lot of hacks here that will be understood as "good enough for now".
  */
 
+var fs = require('fs');
+
 var AS = exports.AS = {
     
     /**
@@ -29,15 +31,23 @@ var AS = exports.AS = {
      **/
 
     
-    build: function(file, entryPackage, entryClass){
-       var js = this.transmogrify(file);
+    build: function(srcDir, entryClass){
+       
+       var packageToFile = entryClass.replace(new RegExp("\\.", "g"), "/") + ".as";
+       var className = entryClass.substr(entryClass.lastIndexOf(".") + 1);
+
+       ASPackageRepo.___buildPackageStructure(entryClass);
+
+       var js = this.transmogrify(srcDir + packageToFile);
+       
        eval(js);
-       var bootstrap = "var app = ASPackageRepo." + entryPackage + (entryPackage === '' ? "":".") + entryClass + "();\n app." + entryClass + "();";
+       var bootstrap = "var app = ASPackageRepo." + entryClass + "();\n app." + className + "();";
        eval(bootstrap);
        
     },
 
-    transmogrify: function(file){
+    transmogrify: function(filePath){
+        var file = (fs.readFileSync(filePath)).toString();
         file = this._replaceTrace(file);
         file = this._strip(file);
         var vars = this._extractClassScopeVariables(file);
@@ -191,7 +201,7 @@ var MODELS = {
    ASpackage: function(p, c){
 
         return {
-            packageName: p || "ASPackageRepo",
+            packageName: p || "_",
             clss: c,
 
             ASForm: function(){
@@ -199,7 +209,7 @@ var MODELS = {
             },
 
             JSForm: function(){
-                var result = "var " + this.packageName + " = {\n";
+                var result = "var " + "ASPackageRepo" + (this.packageName == "_" ? "":("." + this.packageName)) + " = {\n";
                 result += this.clss.JSForm();
                 result += "\n};";
                 return result;
@@ -312,5 +322,20 @@ var MODELS = {
 
     }
 
+}
+
+var ASPackageRepo = {
+    
+    ___buildPackageStructure: function(entryClass){
+
+        var steps = entryClass.split('.');
+        steps.pop();
+        var c = this;
+        for(var i = 0; i < steps.length; i++){
+            if(c[steps[i]] === undefined) c[steps[i]] = {};
+            c = c[steps[i]];
+        }
+
+    }
 }
     
