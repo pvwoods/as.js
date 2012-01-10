@@ -2,7 +2,7 @@
 
 ## Running v0.0.1 compiler with 0.0.2 dev
 
-    git checkout
+    git clone ...
     npm install -g
     asjs srcDirectory/ com.asjs.MyClass
 
