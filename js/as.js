@@ -324,7 +324,7 @@ var MODELS = {
 
             TYPE_DECLERATION_STRUCTURE_REG: new RegExp(":\\w*", "gi"),
             VARS_OPEN_STRUCTURE_REG: "[\\s\\.\\(]",
-            VARS_CLOSE_STRUCTURE_REG: "[\\s\\.\\}\\)\\+\\-\\/\\*\\;\\(\\,]",
+            VARS_CLOSE_STRUCTURE_REG: "[\\s\\.\\}\\)\\+\\-\\/\\*\\;\\(\\,\\[]",
 
             modifier: m,
             methodName: n,
