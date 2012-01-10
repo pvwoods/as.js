@@ -18,6 +18,8 @@ var AS = exports.AS = {
 
     METHOD_MODIFIERS: ["public", "private", "protected", "internal"],
 
+    IMPORT_REG: new RegExp("import\\s\\s*([\\w\\.]*)"),
+
     CLASS_VARIABLE_REG: "[\\s]*var[\\s]*([\\w]*)([\\:\\s\\w]*)?",
 
     FUNCTION_REG: "[\\s]*function[\\s]*([\\w]*)\\(([\\w\\s\\:\\,]*)\\)[\\s\\:\\w]*",
@@ -31,25 +33,36 @@ var AS = exports.AS = {
      **/
 
     
-    build: function(srcDir, entryClass){
+    build: function(srcDir, entryClass, noBoot){
+
+       console.log("BUILDING :: " + entryClass);
        
        var packageToFile = entryClass.replace(new RegExp("\\.", "g"), "/") + ".as";
        var className = entryClass.substr(entryClass.lastIndexOf(".") + 1);
 
-       ASPackageRepo.___buildPackageStructure(entryClass);
+       this._buildPackageStructure(entryClass);
 
-       var js = this.transmogrify(srcDir + packageToFile);
-       
+       var js = this.transmogrify(srcDir, packageToFile); 
+
        eval(js);
-       var bootstrap = "var app = ASPackageRepo." + entryClass + "();\n app." + className + "();";
-       eval(bootstrap);
+
+       if(!noBoot){
+           var bootstrap = "var app = ASPackageRepo." + entryClass + "();\n app." + className + "();";
+           eval(bootstrap);
+       }
        
     },
 
-    transmogrify: function(filePath){
-        var file = (fs.readFileSync(filePath)).toString();
+    transmogrify: function(srcPath, filePath){
+        var file = (fs.readFileSync(srcPath + filePath)).toString();
         file = this._replaceTrace(file);
         file = this._strip(file);
+        
+        var dependencies = this._getDependencies(file);
+        for(var i = 0; i < dependencies.length; i++){
+            AS.build(srcPath, dependencies[i], true);
+        }
+        
         var vars = this._extractClassScopeVariables(file);
         var funcs = this._extractFunctions(file);
         var p = MODELS.ASpackage(this._extractPackage(file), MODELS.ASclass(this._extractClassName(file), funcs, vars));
@@ -81,6 +94,27 @@ var AS = exports.AS = {
 
         return s;
 
+    },
+
+    _getDependencies: function(s){
+        
+        var r = this.IMPORT_REG;
+        var match = r(s);
+        var f = [];
+        var a = [];
+
+        while(match !== null){
+
+            f.push(match[1]);
+            a = s.split("");
+            a.splice(match.index, match[0].length + 1);
+            s = a.join("");
+            match = r(s);
+
+        }
+
+        return f;
+        
     },
 
     _extractFunctions: function(s){
@@ -190,8 +224,19 @@ var AS = exports.AS = {
         if(console && console.log){
             console.log.apply(this, arguments);
         }
-    }
+    },
 
+    _buildPackageStructure: function(entryClass){
+
+        var steps = entryClass.split('.');
+        steps.pop();
+        var c = ASPackageRepo;
+        for(var i = 0; i < steps.length; i++){
+            if(c[steps[i]] === undefined) c[steps[i]] = {};
+            c = c[steps[i]];
+        }
+
+    }
 
 
 }
@@ -209,7 +254,7 @@ var MODELS = {
             },
 
             JSForm: function(){
-                var result = "var " + "ASPackageRepo" + (this.packageName == "_" ? "":("." + this.packageName)) + " = {\n";
+                var result = "ASPackageRepo" + (this.packageName == "_" ? "":("." + this.packageName)) + " = {\n";
                 result += this.clss.JSForm();
                 result += "\n};";
                 return result;
@@ -324,18 +369,5 @@ var MODELS = {
 
 }
 
-var ASPackageRepo = {
-    
-    ___buildPackageStructure: function(entryClass){
-
-        var steps = entryClass.split('.');
-        steps.pop();
-        var c = this;
-        for(var i = 0; i < steps.length; i++){
-            if(c[steps[i]] === undefined) c[steps[i]] = {};
-            c = c[steps[i]];
-        }
-
-    }
-}
+var ASPackageRepo = {}
     
