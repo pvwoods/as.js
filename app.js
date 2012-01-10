@@ -1,6 +1,10 @@
+#!/usr/bin/env node
+
 var AS = require('./js/as').AS;
 
-//var js = AS.transmogrify(__dirname + "/" + process.argv[2]);
-console.log("\n********************\n**     RUNNING    **\n********************\n");
-AS.build(__dirname + "/" + process.argv[2], process.argv[3]);
-console.log('\n');
+if(process.argv[2] === "-c"){
+    console.log(AS.build(__dirname + "/" + process.argv[3], process.argv[4], false, true));
+}else{
+    AS.build(__dirname + "/" + process.argv[2], process.argv[3]);
+}
+

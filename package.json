@@ -1,0 +1,11 @@
+{
+  "name": "asjs",
+  "description": "Actionscript to Javascript compiler",
+  "author": "Philip Woods <pvwoods.public@gmail.com>",
+  "dependencies": {
+  },
+  "version": "0.0.1",
+  "main": "app.js",
+  "engine": ">=0.3",
+  "bin" : { "asjs" : "./app.js" }
+}

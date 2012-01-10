@@ -32,23 +32,34 @@ var AS = exports.AS = {
      * Where the bulk of the work happens
      **/
 
-    
-    build: function(srcDir, entryClass, noBoot){
+    dumping: false,
 
-       console.log("BUILDING :: " + entryClass);
-       
+    
+    build: function(srcDir, entryClass, noBoot, dump){
+
+       this.dumping = dump === true ? true:this.dumping;
+
        var packageToFile = entryClass.replace(new RegExp("\\.", "g"), "/") + ".as";
        var className = entryClass.substr(entryClass.lastIndexOf(".") + 1);
 
        this._buildPackageStructure(entryClass);
 
-       var js = this.transmogrify(srcDir, packageToFile); 
-
+       var js = this.transmogrify(srcDir, packageToFile);  
+       if(this.dumping)
+           ASFile += js + '\n';
        eval(js);
 
        if(!noBoot){
-           var bootstrap = "var app = ASPackageRepo." + entryClass + "();\n app." + className + "();";
-           eval(bootstrap);
+           var bootstrap = "var app = ASPackageRepo." + entryClass + "();\napp." + className + "();";
+           if(!this.dumping){
+               console.log("\n********************\n**     RUNNING    **\n********************\n");
+               eval(bootstrap);
+           }else{
+               ASFile = "var ASPackageRepo = " + JSON.stringify(ASPackageRepo) + "\n" + ASFile;
+               ASFile += "\n" + bootstrap;
+               return ASFile;
+           }
+
        }
        
     },
@@ -58,10 +69,7 @@ var AS = exports.AS = {
         file = this._replaceTrace(file);
         file = this._strip(file);
         
-        var dependencies = this._getDependencies(file);
-        for(var i = 0; i < dependencies.length; i++){
-            AS.build(srcPath, dependencies[i], true);
-        }
+        file = this._fixDependencies(file, srcPath);
         
         var vars = this._extractClassScopeVariables(file);
         var funcs = this._extractFunctions(file);
@@ -115,6 +123,15 @@ var AS = exports.AS = {
 
         return f;
         
+    },
+
+    _fixDependencies: function(s, srcPath){
+        var dependencies = this._getDependencies(s);
+        for(var i = 0; i < dependencies.length; i++){
+            AS.build(srcPath, dependencies[i], true);
+            s = s.replace(new RegExp("new\\s*" + dependencies[i].split('.').pop(), "g"), "ASPackageRepo." + dependencies[i] + "().__asjs__init__");
+        }
+        return s;
     },
 
     _extractFunctions: function(s){
@@ -254,7 +271,7 @@ var MODELS = {
             },
 
             JSForm: function(){
-                var result = "ASPackageRepo" + (this.packageName == "_" ? "":("." + this.packageName)) + " = {\n";
+                var result = "ASPackageRepo" + (this.packageName == "_" ? "":("." + this.packageName)) + "." + this.clss.name + " = ";
                 result += this.clss.JSForm();
                 result += "\n};";
                 return result;
@@ -275,14 +292,15 @@ var MODELS = {
             },
 
             JSForm: function(){
-                var result = this.name + ": function(){ return {\n";
+                var result = "function(){ return {\n";
                 for(var b = 0; b < this.variables.length; b++){
                     result += this.variables[b].JSForm();
                 }
                 for(var i = 0; i < this.functions.length; i++){
                     result += this.functions[i].JSForm();
                 }
-                result += "\n}\n}";
+                result += "__asjs__init__: function(){ this." + this.name + ".apply(null, arguments); return this;},"
+                result += "\n}";
                 return result;
             }
         }
@@ -369,5 +387,6 @@ var MODELS = {
 
 }
 
-var ASPackageRepo = {}
+var ASPackageRepo = {};
+var ASFile = 'var AS = { trace: function(){ if(console && console.log) console.log.apply(null, arguments) } };';
     
