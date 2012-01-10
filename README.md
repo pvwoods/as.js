@@ -2,13 +2,13 @@
 
 ## Running v0.0.1 compiler with 0.0.2 dev
 
-git checkout
-npm install -g
-asjs srcDirectory/ com.asjs.MyClass
+    git checkout
+    npm install -g
+    asjs srcDirectory/ com.asjs.MyClass
 
 or 
 
-asjs -c srcDirectory/ com.asjs.MyClass 
+    asjs -c srcDirectory/ com.asjs.MyClass 
 
 to print out the Javascript
 
