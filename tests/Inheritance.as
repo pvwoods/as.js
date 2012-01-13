@@ -6,8 +6,6 @@ package {
 
         public function Inheritance():void{
 
-            super();
-
             execute();
 
         }

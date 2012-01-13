@@ -52,7 +52,7 @@ var AS = exports.AS = {
        eval(js);
 
        if(!noBoot){
-           var bootstrap = "var app = ASPackageRepo." + entryClass + "();\napp." + className + "();";
+           var bootstrap = "var app = ASPackageRepo." + entryClass + "().__asjs__init__();";
            if(!this.dumping){
                console.log("\n********************\n**     RUNNING    **\n********************\n");
                eval(bootstrap);
@@ -75,7 +75,10 @@ var AS = exports.AS = {
         
         var vars = this._extractClassScopeVariables(file);
         var funcs = this._extractFunctions(file);
-        var p = MODELS.ASpackage(this._extractPackage(file), MODELS.ASclass(this._extractClassName(file), this._extractExtensionClass(file), funcs, vars));
+        var className = this._extractClassName(file);
+        var packageName = this._extractPackage(file);
+        Classes[packageName + (packageName === '' ? "":".") + className] = MODELS.ASclass(className, this._extractExtensionClass(file), funcs, vars);
+        var p = MODELS.ASpackage(packageName, Classes[packageName + (packageName === '' ? "":".") + className]);
         return p.JSForm();
     },
 
@@ -220,9 +223,15 @@ var AS = exports.AS = {
         var m = r(s)[0];
         var e = this.EXTENSION_REG(m);
         if(e !== null && e[1] !== null){
-            return e[1];
+            var im = new RegExp("import\\s*([\\w\\.]*" + e[1] + ")")(s);
+            if(im !== null && im[1] !== null){
+                return im[1];
+            }else{
+                console.log("ERROR :: could not find import statement for extension class " + e[1]);
+                return e[1];
+            }
         }
-        return '';
+        return null;
     },
 
     _extractPackage: function(s){
@@ -253,6 +262,14 @@ var AS = exports.AS = {
         if(console && console.log){
             console.log.apply(this, arguments);
         }
+    },
+
+    extendClass: function(a, b){ 
+        for(var k in b){ 
+            if(b.hasOwnProperty(k) && a[k] === undefined)
+                a[k] = b[k]; 
+        } 
+        return a;
     },
 
     _buildPackageStructure: function(entryClass){
@@ -296,7 +313,7 @@ var MODELS = {
 
         var c = {
             name: n,
-            extends: e,
+            extendClass: e,
             functions: f,
             variables: v,
 
@@ -312,15 +329,25 @@ var MODELS = {
                 for(var i = 0; i < this.functions.length; i++){
                     result += this.functions[i].JSForm();
                 }
-                result += "__asjs__init__: function(){ if(this." + this.name + " !== undefined) this." + this.name + ".apply(null, arguments); return this;},"
+                result += "__asjs__init__: function(){ ";
+                if(this.extendClass !== null) result += "AS.extendClass(this, ASPackageRepo." + this.extendClass + "()); ";
+                result += "if(this." + this.name + " !== undefined) this." + this.name + ".apply(this, arguments); return this;},"
                 result += "\n}";
                 return result;
+            },
+
+            getFunctionScopableNames: function(addInheritance){
+                var functionScopableNames = [];
+                for(var j = 0; j < this.variables.length; j++) functionScopableNames.push(this.variables[j].name);
+                for(var h = 0; h < this.functions.length; h++) functionScopableNames.push(this.functions[h].methodName);
+                if(addInheritance === true && this.extendClass !== null){
+                    functionScopableNames.push.apply(functionScopableNames, Classes[this.extendClass].getFunctionScopableNames());
+                }
+                return functionScopableNames;
             }
         }
 
-        var functionScopableNames = [];
-        for(var j = 0; j < c.variables.length; j++) functionScopableNames.push(c.variables[j].name);
-        for(var h = 0; h < c.functions.length; h++) functionScopableNames.push(c.functions[h].methodName);
+        var functionScopableNames = c.getFunctionScopableNames(true);
         if(functionScopableNames.length > 0){
             for(var i = 0; i < c.functions.length; i++){
                 c.functions[i].scopeFunctionVariables(functionScopableNames);
@@ -401,5 +428,6 @@ var MODELS = {
 }
 
 var ASPackageRepo = {};
-var ASFile = 'var AS = { trace: function(){ if(console && console.log) console.log.apply(null, arguments) } };';
+var Classes = {};
+var ASFile = 'var AS = { trace: function(){ if(console && console.log) console.log.apply(null, arguments) }, extendClass: function(a, b){ for(var k in b){ if(b.hasOwnProperty(k) && a[k] === undefined) a[k] = b[k]; } return a;}};';
     
