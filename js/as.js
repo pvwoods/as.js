@@ -327,7 +327,7 @@ var MODELS = {
                     result += this.variables[b].JSForm();
                 }
                 for(var i = 0; i < this.functions.length; i++){
-                    result += this.functions[i].JSForm();
+                    result += this.functions[i].JSForm(this.extendClass != null ? this.extendClass.substr(this.extendClass.lastIndexOf(".") + 1):"");
                 }
                 result += "__asjs__init__: function(){ ";
                 if(this.extendClass !== null) result += "AS.extendClass(this, ASPackageRepo." + this.extendClass + "()); ";
@@ -395,8 +395,10 @@ var MODELS = {
                 return this.modifier + " function " + this.methodName + "(" + this.args + "):" + this.returnTypeForm;
             },
             
-            JSForm: function(){
-                return this.methodName + ": function(" + this._argsJSForm() + ")" + this.contents.replace(this.TYPE_DECLERATION_STRUCTURE_REG, "") + ",\n";
+            JSForm: function(superReplacement){
+                var c = this.contents.replace(this.TYPE_DECLERATION_STRUCTURE_REG, "");
+                c = c.replace("super(", "this." + superReplacement + "(");
+                return this.methodName + ": function(" + this._argsJSForm() + ")" + c + ",\n";
             }
 
         }

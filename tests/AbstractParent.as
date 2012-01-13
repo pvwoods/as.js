@@ -2,12 +2,15 @@ package {
 
     public class AbstractParent {
 
-        public function AbstractParent():void{
-            trace("hello from the abstract parent!");
+        protected var _callee:String;
+
+        public function AbstractParent(calleeName:String):void{
+            trace("hello " + calleeName + " from the abstract parent!");
+            _callee = calleeName;
         }
 
         public function execute():void{
-            trace("executing abstract parent class");
+            trace(_callee + " is executing abstract parent class");
         }
 
     }
