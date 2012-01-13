@@ -72,12 +72,10 @@ var AS = exports.AS = {
         file = this._strip(file);
         
         file = this._fixDependencies(file, srcPath);
-
-        console.log(this._extractExtensionClass(file));
         
         var vars = this._extractClassScopeVariables(file);
         var funcs = this._extractFunctions(file);
-        var p = MODELS.ASpackage(this._extractPackage(file), MODELS.ASclass(this._extractClassName(file), funcs, vars));
+        var p = MODELS.ASpackage(this._extractPackage(file), MODELS.ASclass(this._extractClassName(file), this._extractExtensionClass(file), funcs, vars));
         return p.JSForm();
     },
 
@@ -294,10 +292,11 @@ var MODELS = {
     
     },
 
-    ASclass: function(n, f, v){
+    ASclass: function(n, e, f, v){
 
         var c = {
             name: n,
+            extends: e,
             functions: f,
             variables: v,
 
@@ -313,7 +312,7 @@ var MODELS = {
                 for(var i = 0; i < this.functions.length; i++){
                     result += this.functions[i].JSForm();
                 }
-                result += "__asjs__init__: function(){ this." + this.name + ".apply(null, arguments); return this;},"
+                result += "__asjs__init__: function(){ if(this." + this.name + " !== undefined) this." + this.name + ".apply(null, arguments); return this;},"
                 result += "\n}";
                 return result;
             }
