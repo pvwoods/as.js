@@ -24,7 +24,9 @@ var AS = exports.AS = {
 
     FUNCTION_REG: "[\\s]*function[\\s]*([\\w]*)\\(([\\w\\s\\:\\,]*)\\)[\\s\\:\\w]*",
 
-    CLASS_REG: "[\\s]*class[\\s]*([\\w]*)",
+    CLASS_REG: "[\\s]*class[\\s]*([\\w]*)[\\w\\s]*",
+
+    EXTENSION_REG: new RegExp("extends\\s*([\\w]*)"),
 
     PACKAGE_REG: new RegExp("package[\\s]*([\\w\.]*)"),
 
@@ -70,6 +72,8 @@ var AS = exports.AS = {
         file = this._strip(file);
         
         file = this._fixDependencies(file, srcPath);
+
+        console.log(this._extractExtensionClass(file));
         
         var vars = this._extractClassScopeVariables(file);
         var funcs = this._extractFunctions(file);
@@ -211,6 +215,16 @@ var AS = exports.AS = {
     _extractClassName: function(s){
         var r = this._getClassRestructionReg();
         return r(s)[2];
+    },
+
+    _extractExtensionClass: function(s){
+        var r = this._getClassRestructionReg();
+        var m = r(s)[0];
+        var e = this.EXTENSION_REG(m);
+        if(e !== null && e[1] !== null){
+            return e[1];
+        }
+        return '';
     },
 
     _extractPackage: function(s){
