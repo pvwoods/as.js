@@ -331,7 +331,7 @@ var MODELS = {
                 }
                 result += "__asjs__init__: function(){ ";
                 if(this.extendClass !== null) result += "AS.extendClass(this, ASPackageRepo." + this.extendClass + "()); ";
-                result += "if(this." + this.name + " !== undefined) this." + this.name + ".apply(this, arguments); return this;},"
+                result += "if(this." + this.name + " !== undefined){ this." + this.name + ".apply(this, arguments); } return this;},"
                 result += "\n}";
                 return result;
             },
