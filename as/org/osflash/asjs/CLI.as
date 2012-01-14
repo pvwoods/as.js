@@ -3,11 +3,13 @@ package org.osflash.asjs {
     import flash.utils.Dictionary;
 
     import org.osflash.asjs.ConfigData;
+    import org.osflash.asjs.core.ASGenerator;
 
     public class CLI {
 
         private var _configData:ConfigData = new ConfigData(); // In later versions, Config shouldn't need to be instantiated
         private var _commands:Dictionary = new Dictionary();
+        private var _fs:fs = require('fs');
 
         public function CLI() {
             
@@ -20,16 +22,19 @@ package org.osflash.asjs {
             _commands["--transmogrify"] = transmogrify;
             
             // handle the args
-            for(var i:int = 0; i < process.argv.length; i++){
-                if(_commands[process.argv[i]] !== undefined){
-                    //var o:Object = {"0": i, "1": process.argv};
-                    _commands[process.argv[i]].apply(this, null);
+            if(process.argv.length == 2){
+                runREPL();
+            }else{
+                for(var i:int = 0; i < process.argv.length; i++){
+                    if(_commands[process.argv[i]] !== undefined){
+                        _commands[process.argv[i]].apply(this, [i, process.argv]);
+                    }
                 }
             }
 
         }
 
-        public function printCredits(argIndex, args):void{
+        public function printCredits(argIndex:uint, args:Array):void{
 
             trace('\n      ___  _____     ___ _____ ');
             trace('     / _ \\/  ___|   |_  /  ___|');
@@ -41,31 +46,32 @@ package org.osflash.asjs {
 
         }
 
-        public function printHelp(argIndex, args):void{
+        public function printHelp(argIndex:uint, args:Array):void{
             
             trace("\nUsage -> asjs [<args>]");
             trace("\nAvailable Commands:");
             trace("\t-t --transmogrify\ttransform AS3 to JS and print");
             trace("\t-h --help\t\tShow AS.JS help");
+            trace("\t-v --version\t\tShow AS.JS version");
             trace("\t--credits\t\tShow AS.JS credits");
 
 
         }
 
-        public function printVersion(argIndex, args):void{
+        public function printVersion(argIndex:uint, args:Array):void{
 
             trace("v" + _configData.VERSION_NUMBER);
 
         }
 
-        public function transmogrify(argIndex, args):void{
+        public function transmogrify(argIndex:uint, args:Array):void{
 
-         //   
+            var g:ASGenerator = new ASGenerator();   
 
         }
 
         public function runREPL():void{
-            //
+            trace("Starting AS.JS REPL\n");
         }
 
     }
