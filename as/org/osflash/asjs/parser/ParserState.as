@@ -1,6 +1,6 @@
 package org.osflash.asjs.parser {
     
-    //import flash.utils.Dictionary;
+    import flash.utils.Dictionary;
 
     public class ParserState {
         
@@ -10,7 +10,7 @@ package org.osflash.asjs.parser {
         public var parserIndex:uint;
         public var parserLength:uint;
 
-        //public var cache:Dictionary;
+        public var cache:Dictionary;
 
         public function ParserState(input:String, index:uint):void {
             
@@ -18,11 +18,11 @@ package org.osflash.asjs.parser {
             parserIndex = index;
             parserLength = parserInput.length - parserIndex;
 
-            //cache = new Dictionary();
+            cache = new Dictionary();
 
         }
 
-        public function from(index:uint):ParserState{
+        public function from(index:uint):ParserState {
             
             var result:ParserState = new ParserState(parserInput, parserIndex + index);
             result.cache = cache;
@@ -31,10 +31,18 @@ package org.osflash.asjs.parser {
 
         }
 
-        public function substring(begin:uint = 1, end:uint):String {
+        public function substring(begin:uint, end:int = -1):String {
+            
+            if(end == -1) end = parserLength;
+            return parserInput.substring(begin + parserIndex, end + parserIndex);
 
-            //return parserInput.substr
+        }
 
+        public function trimLeft():ParserState{
+            var s:String = parserInput.substring(0);
+            var m:Array = s.match(new RegExp(/^\s+/));
+            if(m != undefined && m.length > 0) return from(m[0].length);
+            return this;
         }
 
     }

@@ -22,7 +22,7 @@ var AS = exports.AS = {
 
     CLASS_VARIABLE_REG: "[\\s]*var[\\s]*([\\w]*)([\\:\\s\\w]*)?",
 
-    FUNCTION_REG: "[\\s]*function[\\s]*([\\w]*)\\(([\\w\\s\\:\\,\\[\\]\\=]*)\\)[\\s\\:\\w]*",
+    FUNCTION_REG: "[\\s]*function[\\s]*([\\w]*)\\(([\\w\\s\\:\\,\\=\\-\\']*)\\)[\\s\\:\\w]*",
 
     CLASS_REG: "[\\s]*class[\\s]*([\\w]*)[\\w\\s]*",
 
@@ -51,6 +51,7 @@ var AS = exports.AS = {
            var js = this.transmogrify(srcDir, packageToFile);  
            if(this.dumping)
                ASFile += js + '\n';
+
            eval(js);
 
            if(!noBoot){
@@ -98,6 +99,9 @@ var AS = exports.AS = {
 
         // remove block comments
         s = s.replace(new RegExp("\\/\\*.*\\*\\/", "g"), "");
+        
+        // create a token to preserve this returns
+        s = s.replace("return this", "%%RETURN__THIS%%");
 
         // remove any 'this.' references
         s = s.replace(new RegExp("this\\.", ""), "");
@@ -366,7 +370,7 @@ var MODELS = {
         return {
 
             TYPE_DECLERATION_STRUCTURE_REG: new RegExp(":\\w*", "gi"),
-            OPTIONAL_ARG_REG: new RegExp(/([\w\s]*)\=([\w\s]*)/),
+            OPTIONAL_ARG_REG: new RegExp(/([\w\s]*)\=([\w\s\-\']*)/),
             VARS_OPEN_STRUCTURE_REG: "[\\s\\(]",
             VARS_CLOSE_STRUCTURE_REG: "[\\s\\.\\}\\)\\+\\-\\/\\*\\;\\(\\,\\[]",
 
@@ -383,7 +387,7 @@ var MODELS = {
                var match = this.OPTIONAL_ARG_REG.exec(s);
                while(match !== null){
                    this.optionalArgContents += match[1] + " = " + match[1] + " || " + match[2] + ";\n";
-                   s = s.replace(new RegExp(/\s*\=[\w\s\"]*/), "");
+                   s = s.replace(new RegExp(/\s*\=[\w\s\'\-]*/), "");
                    match = this.OPTIONAL_ARG_REG.exec(s);
                } 
                return s;
@@ -410,6 +414,7 @@ var MODELS = {
             JSForm: function(superReplacement){
                 var c = this.contents.replace(this.TYPE_DECLERATION_STRUCTURE_REG, "");
                 c = c.replace("super(", "this." + superReplacement + "(");
+                c = c.replace("%%RETURN__THIS%%", "return this");
                 return this.methodName + ": function(" + this._argsJSForm() + "){\n" + this.optionalArgContents + c.substr(1) + ",\n";
             }
 
