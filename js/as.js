@@ -22,7 +22,7 @@ var AS = exports.AS = {
 
     CLASS_VARIABLE_REG: "[\\s]*var[\\s]*([\\w]*)([\\:\\s\\w]*)?",
 
-    FUNCTION_REG: "[\\s]*function[\\s]*([\\w]*)\\(([\\w\\s\\:\\,\\=\\-\\']*)\\)[\\s\\:\\w]*",
+    FUNCTION_REG: "[\\s]*function[\\s]*([\\w]*)\\(([\\w\\s\\:\\,\\=\\-\\'\\*]*)\\)[\\s\\:\\w\\*]*",
 
     CLASS_REG: "[\\s]*class[\\s]*([\\w]*)[\\w\\s]*",
 
@@ -369,8 +369,8 @@ var MODELS = {
 
         return {
 
-            TYPE_DECLERATION_STRUCTURE_REG: new RegExp(":\\w*", "gi"),
-            OPTIONAL_ARG_REG: new RegExp(/([\w\s]*)\=([\w\s\-\']*)/),
+            TYPE_DECLERATION_STRUCTURE_REG: new RegExp(":[\\w\\*]*", "gi"),
+            OPTIONAL_ARG_REG: new RegExp(/([\w\s]*)\=([\w\s\-\'\*]*)/),
             VARS_OPEN_STRUCTURE_REG: "[\\s\\(]",
             VARS_CLOSE_STRUCTURE_REG: "[\\s\\.\\}\\)\\+\\-\\/\\*\\;\\(\\,\\[]",
 
@@ -387,7 +387,7 @@ var MODELS = {
                var match = this.OPTIONAL_ARG_REG.exec(s);
                while(match !== null){
                    this.optionalArgContents += match[1] + " = " + match[1] + " || " + match[2] + ";\n";
-                   s = s.replace(new RegExp(/\s*\=[\w\s\'\-]*/), "");
+                   s = s.replace(new RegExp(/\s*\=[\w\s\'\-\*]*/), "");
                    match = this.OPTIONAL_ARG_REG.exec(s);
                } 
                return s;
