@@ -22,7 +22,7 @@ var AS = exports.AS = {
 
     CLASS_VARIABLE_REG: "[\\s]*var[\\s]*([\\w]*)([\\:\\s\\w]*)?",
 
-    FUNCTION_REG: "[\\s]*function[\\s]*([\\w]*)\\(([\\w\\s\\:\\,]*)\\)[\\s\\:\\w]*",
+    FUNCTION_REG: "[\\s]*function[\\s]*([\\w]*)\\(([\\w\\s\\:\\,\\[\\]\\=]*)\\)[\\s\\:\\w]*",
 
     CLASS_REG: "[\\s]*class[\\s]*([\\w]*)[\\w\\s]*",
 
@@ -39,29 +39,32 @@ var AS = exports.AS = {
     
     build: function(srcDir, entryClass, noBoot, dump){
 
-       this.dumping = dump === true ? true:this.dumping;
+       if(Classes[entryClass] === undefined){
 
-       var packageToFile = entryClass.replace(new RegExp("\\.", "g"), "/") + ".as";
-       var className = entryClass.substr(entryClass.lastIndexOf(".") + 1);
+           this.dumping = dump === true ? true:this.dumping;
 
-       this._buildPackageStructure(entryClass);
+            var packageToFile = entryClass.replace(new RegExp("\\.", "g"), "/") + ".as";
+           var className = entryClass.substr(entryClass.lastIndexOf(".") + 1);
 
-       var js = this.transmogrify(srcDir, packageToFile);  
-       if(this.dumping)
-           ASFile += js + '\n';
-       eval(js);
+           this._buildPackageStructure(entryClass);
 
-       if(!noBoot){
-           var bootstrap = "var app = ASPackageRepo." + entryClass + "().__asjs__init__();";
-           if(!this.dumping){
-               console.log("\n********************\n**     RUNNING    **\n********************\n");
-               eval(bootstrap);
-           }else{
-               ASFile = "var ASPackageRepo = " + JSON.stringify(ASPackageRepo) + "\n" + ASFile;
-               ASFile += "\n" + bootstrap;
-               return ASFile;
+           var js = this.transmogrify(srcDir, packageToFile);  
+           if(this.dumping)
+               ASFile += js + '\n';
+           eval(js);
+
+           if(!noBoot){
+               var bootstrap = "var app = ASPackageRepo." + entryClass + "().__asjs__init__();";
+               if(!this.dumping){
+                   console.log("\n********************\n**     RUNNING    **\n********************\n");
+                   eval(bootstrap);
+               }else{
+                   ASFile = "var ASPackageRepo = " + JSON.stringify(ASPackageRepo) + "\n" + ASFile;
+                   ASFile += "\n" + bootstrap;
+                   return ASFile;
+               }
+
            }
-
        }
        
     },
@@ -363,7 +366,8 @@ var MODELS = {
         return {
 
             TYPE_DECLERATION_STRUCTURE_REG: new RegExp(":\\w*", "gi"),
-            VARS_OPEN_STRUCTURE_REG: "[\\s\\.\\(]",
+            OPTIONAL_ARG_REG: new RegExp(/([\w\s]*)\=([\w\s]*)/),
+            VARS_OPEN_STRUCTURE_REG: "[\\s\\(]",
             VARS_CLOSE_STRUCTURE_REG: "[\\s\\.\\}\\)\\+\\-\\/\\*\\;\\(\\,\\[]",
 
             modifier: m,
@@ -371,10 +375,18 @@ var MODELS = {
             args: a,
             returnType: r,
             contents: c,
+            optionalArgContents: '',
 
             _argsJSForm: function(){
                var s = this.args;
-               return s.replace(this.TYPE_DECLERATION_STRUCTURE_REG, "");
+               s = s.replace(this.TYPE_DECLERATION_STRUCTURE_REG, "");
+               var match = this.OPTIONAL_ARG_REG.exec(s);
+               while(match !== null){
+                   this.optionalArgContents += match[1] + " = " + match[1] + " || " + match[2] + ";\n";
+                   s = s.replace(new RegExp(/\s*\=[\w\s\"]*/), "");
+                   match = this.OPTIONAL_ARG_REG.exec(s);
+               } 
+               return s;
             },
 
             scopeFunctionVariables: function(variables){
@@ -398,7 +410,7 @@ var MODELS = {
             JSForm: function(superReplacement){
                 var c = this.contents.replace(this.TYPE_DECLERATION_STRUCTURE_REG, "");
                 c = c.replace("super(", "this." + superReplacement + "(");
-                return this.methodName + ": function(" + this._argsJSForm() + ")" + c + ",\n";
+                return this.methodName + ": function(" + this._argsJSForm() + "){\n" + this.optionalArgContents + c.substr(1) + ",\n";
             }
 
         }

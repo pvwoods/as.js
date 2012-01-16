@@ -3,7 +3,7 @@ package org.osflash.asjs {
     import flash.utils.Dictionary;
 
     import org.osflash.asjs.ConfigData;
-    import org.osflash.asjs.core.ASParser;
+    import org.osflash.asjs.parser.ASParser;
 
     public class CLI {
 

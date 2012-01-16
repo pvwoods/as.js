@@ -1,6 +1,6 @@
-package org.osflash.asjs.core {
+package org.osflash.asjs.parser {
     
-    import org.osflash.asjs.core.CombinatorParser;
+    import org.osflash.asjs.parser.CombinatorParser;
 
     public class ASParser extends CombinatorParser {
 
