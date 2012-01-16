@@ -3,7 +3,7 @@ package org.osflash.asjs {
     import flash.utils.Dictionary;
 
     import org.osflash.asjs.ConfigData;
-    import org.osflash.asjs.core.ASGenerator;
+    import org.osflash.asjs.core.ASParser;
 
     public class CLI {
 
@@ -66,7 +66,7 @@ package org.osflash.asjs {
 
         public function transmogrify(argIndex:uint, args:Array):void{
 
-            var g:ASGenerator = new ASGenerator();   
+            var g:ASParser = new ASParser();   
 
         }
 

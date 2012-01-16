@@ -112,7 +112,7 @@ var AS = exports.AS = {
     _getDependencies: function(s){
         
         var r = this.IMPORT_REG;
-        var match = r(s);
+        var match = r.exec(s);
         var f = [];
         var a = [];
 
@@ -122,7 +122,7 @@ var AS = exports.AS = {
             a = s.split("");
             a.splice(match.index, match[0].length + 1);
             s = a.join("");
-            match = r(s);
+            match = r.exec(s);
 
         }
 
@@ -142,7 +142,7 @@ var AS = exports.AS = {
     _extractFunctions: function(s){
         
         var r = this._getFunctionRestructionReg();
-        var match = r(s);
+        var match = r.exec(s);
         var functions = [];
         var f = {};
         var a = [];
@@ -153,7 +153,7 @@ var AS = exports.AS = {
             a = s.split("");
             a.splice(match.index, match[0].length + f.contents.length)
             s = a.join("");
-            match = r(s);
+            match = r.exec(s);
         }
 
         return functions;
@@ -177,7 +177,7 @@ var AS = exports.AS = {
         
         var r = this._getClassVairableRestructionReg();
 
-        var match = r(s);
+        var match = r.exec(s);
         var variables = [];
         var v = {};
         var a = [];
@@ -188,7 +188,7 @@ var AS = exports.AS = {
             a = s.split("");
             a.splice(match.index, match[0].length + v.value.length)
             s = a.join("");
-            match = r(s);
+            match = r.exec(s);
         }
 
         return variables;
@@ -215,13 +215,13 @@ var AS = exports.AS = {
 
     _extractClassName: function(s){
         var r = this._getClassRestructionReg();
-        return r(s)[2];
+        return r.exec(s)[2];
     },
 
     _extractExtensionClass: function(s){
         var r = this._getClassRestructionReg();
-        var m = r(s)[0];
-        var e = this.EXTENSION_REG(m);
+        var m = r.exec(s)[0];
+        var e = this.EXTENSION_REG.exec(m);
         if(e !== null && e[1] !== null){
             var im = new RegExp("import\\s*([\\w\\.]*" + e[1] + ")")(s);
             if(im !== null && im[1] !== null){
@@ -235,7 +235,7 @@ var AS = exports.AS = {
     },
 
     _extractPackage: function(s){
-        return this.PACKAGE_REG(s)[1];
+        return this.PACKAGE_REG.exec(s)[1];
     },
 
     /**
@@ -381,10 +381,10 @@ var MODELS = {
                 var corpra = "(" + variables[0];
                 for(var i = 1; i < variables.length; i++) corpra += "|" + variables[i];
                 var r = new RegExp(this.VARS_OPEN_STRUCTURE_REG + corpra + ')' + this.VARS_CLOSE_STRUCTURE_REG);
-                var match = r(this.contents);
+                var match = r.exec(this.contents);
                 while(match !== null){
                     this.contents = this.contents.replace(r, match[0][0] + "{{THIS}}" + match[1] + match[0].substr(match[0].indexOf(match[1]) + match[1].length));
-                    match = r(this.contents);
+                    match = r.exec(this.contents);
                 }
                 var fr = new RegExp("{{THIS}}", "g");
                 this.contents = this.contents.replace(fr, "this.");
