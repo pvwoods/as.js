@@ -223,7 +223,7 @@ var AS = exports.AS = {
         var m = r.exec(s)[0];
         var e = this.EXTENSION_REG.exec(m);
         if(e !== null && e[1] !== null){
-            var im = new RegExp("import\\s*([\\w\\.]*" + e[1] + ")")(s);
+            var im = new RegExp("import\\s*([\\w\\.]*" + e[1] + ")").exec(s);
             if(im !== null && im[1] !== null){
                 return im[1];
             }else{
