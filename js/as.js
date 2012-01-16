@@ -41,9 +41,11 @@ var AS = exports.AS = {
 
        if(Classes[entryClass] === undefined){
 
+           ClassesSeen[entryClass] = true;
+
            this.dumping = dump === true ? true:this.dumping;
 
-            var packageToFile = entryClass.replace(new RegExp("\\.", "g"), "/") + ".as";
+           var packageToFile = entryClass.replace(new RegExp("\\.", "g"), "/") + ".as";
            var className = entryClass.substr(entryClass.lastIndexOf(".") + 1);
 
            this._buildPackageStructure(entryClass);
@@ -140,8 +142,10 @@ var AS = exports.AS = {
     _fixDependencies: function(s, srcPath){
         var dependencies = this._getDependencies(s);
         for(var i = 0; i < dependencies.length; i++){
-            AS.build(srcPath, dependencies[i], true);
-            s = s.replace(new RegExp("new\\s*" + dependencies[i].split('.').pop(), "g"), "ASPackageRepo." + dependencies[i] + "().__asjs__init__");
+            if(ClassesSeen[dependencies[i]] !== true){
+                AS.build(srcPath, dependencies[i], true);
+                s = s.replace(new RegExp("new\\s*" + dependencies[i].split('.').pop(), "g"), "ASPackageRepo." + dependencies[i] + "().__asjs__init__");
+            }
         }
         return s;
     },
@@ -448,5 +452,6 @@ var MODELS = {
 
 var ASPackageRepo = {};
 var Classes = {};
+var ClassesSeen = {}; // this guards against circular imports
 var ASFile = 'var AS = { trace: function(){ if(console && console.log) console.log.apply(null, arguments) }, extendClass: function(a, b){ for(var k in b){ if(b.hasOwnProperty(k) && a[k] === undefined) a[k] = b[k]; } return a;}};';
     

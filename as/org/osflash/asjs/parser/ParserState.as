@@ -1,6 +1,7 @@
 package org.osflash.asjs.parser {
     
     import flash.utils.Dictionary;
+    import org.osflash.asjs.parser.structs.ParserStruct;
 
     public class ParserState {
         
@@ -49,7 +50,7 @@ package org.osflash.asjs.parser {
             return parserInput.charAt(parserIndex + index);
         }
 
-        public function getCached(pid:uint):*{
+        public function getCached(pid:uint):ParserStruct{
 
            if(!memoize) return null;
 
@@ -63,7 +64,7 @@ package org.osflash.asjs.parser {
 
         }
 
-        public function putCached(pid:uint, cache:*):void{
+        public function putCached(pid:uint, cache:Parser):void{
             
             if(!memoize) return null;
             

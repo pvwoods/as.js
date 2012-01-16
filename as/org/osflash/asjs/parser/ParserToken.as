@@ -1,6 +1,7 @@
 package org.osflash.asjs.parser {
 
     import org.osflash.asjs.parser.ParserState;
+    import org.osflash.asjs.parsers.structs.ParserStruct;
 
     public class ParserToken {
         
@@ -15,7 +16,7 @@ package org.osflash.asjs.parser {
 
         }
 
-        public function getState(state:ParserState):*{
+        public function getState(state:ParserState):ParserStruct{
             
             var cached:ParserState = state.getCached(id);
             if(cached != null) return cached;
@@ -23,7 +24,8 @@ package org.osflash.asjs.parser {
             var r:Boolean = state.length >= token.length && state.substring(0, token.length) == token;
 
             if(r){
-                cached = { remaining: state.from(token.length), matched: token, ast: token };
+                //cached = { remaining: state.from(token.length), matched: token, ast: token };
+                cached = new ParserStruct(state.from(token.length), token, token);
             }else{
                 cached = null;
             }
