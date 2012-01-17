@@ -36,7 +36,7 @@ package org.osflash.asjs.parser.combinators {
                     state = result.remaining;
                     if(result.ast != undefined && result.ast != null) {
                         ast.push(result.ast);
-                        matched = matched + result.matched;
+                        matched = matched + result.match;
                     }
                 } else {
                     break;

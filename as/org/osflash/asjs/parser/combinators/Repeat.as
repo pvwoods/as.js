@@ -30,11 +30,11 @@ package org.osflash.asjs.parser.combinators {
             var matched:String = "";
             var matchesFound:uint = 0;
             var result:ParserStruct = parser.getParserStructForState(state);
-
+            
             while(result != null) {
                 matchesFound++;
                 ast.push(result.ast);
-                matched = matched + result.matched;
+                matched = matched + result.match;
                 if(result.remaining.index == state.index) break;
                 state = result.remaining;
                 result = parser.getParserStructForState(state);

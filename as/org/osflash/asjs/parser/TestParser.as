@@ -22,7 +22,7 @@ package org.osflash.asjs.parser {
             _sum = new Sequence([_product, new Repeat(new Sequence([new Choice(['+', '-']), _product]), 0)]);
             _expr = _sum;
 
-            trace(_expr.getParserStructForState(new ParserState("1")));
+            trace(_expr.getParserStructForState(new ParserState("1+2")));
             //trace(_expr);
 
 
