@@ -410,7 +410,7 @@ var MODELS = {
 
         return {
 
-            TYPE_DECLERATION_STRUCTURE_REG: new RegExp(":[\\w\\*]*", "gi"),
+            TYPE_DECLERATION_STRUCTURE_REG: new RegExp(":[\\w\\s\\*]*", "gi"),
             OPTIONAL_ARG_REG: new RegExp(/([\w\s]*)\=([\w\s\-\'\*]*)/),
             VARS_OPEN_STRUCTURE_REG: "[\\s\\(\\[]",
             VARS_CLOSE_STRUCTURE_REG: "[\\s\\.\\}\\)\\+\\-\\/\\*\\;\\(\\,\\[\\]]",

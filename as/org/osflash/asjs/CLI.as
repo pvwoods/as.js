@@ -3,7 +3,6 @@ package org.osflash.asjs {
     import flash.utils.Dictionary;
 
     import org.osflash.asjs.ConfigData;
-    import org.osflash.asjs.parser.TestParser2;
 
     public class CLI {
 
@@ -66,7 +65,6 @@ package org.osflash.asjs {
 
         public function transmogrify(argIndex:uint, args:Array):void{
 
-            var g:ASParser = new TestParser2();   
 
         }
 
