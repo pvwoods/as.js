@@ -388,6 +388,7 @@ var MODELS = {
                 for(var j = 0; j < this.variables.length; j++) functionScopableNames.push(this.variables[j].name);
                 for(var h = 0; h < this.functions.length; h++) functionScopableNames.push(this.functions[h].methodName);
                 if(addInheritance === true && this.extendClass !== null){
+                    if(Classes[this.extendClass] == undefined) console.log("ERROR TRYING TO SCOPE FUNCTION NAMES ON " + this.extendClass + " FOR " + this.name);
                     functionScopableNames.push.apply(functionScopableNames, Classes[this.extendClass].getFunctionScopableNames());
                 }
                 return functionScopableNames;

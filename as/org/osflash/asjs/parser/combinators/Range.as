@@ -30,6 +30,9 @@ package org.osflash.asjs.parser.combinators {
                 cached = null;
             } else {
                 var ch:String = state.at(0);
+                trace(ch);
+                trace(ch >= lower);
+                trace(ch <= upper);
                 if(ch >= lower && ch <= upper) {
                     cached = new ParserStruct(state.from(1), ch, ch );
                 } else {
