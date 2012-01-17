@@ -6,12 +6,12 @@ package org.osflash.asjs.parser.combinators {
     import org.osflash.asjs.parser.combinators.BaseParser;
     import org.osflash.asjs.parser.structs.ParserStruct;
 
-    public class Choice extends BaseParser{
+    public class Repeat extends BaseParser{
 
         public var parser:BaseParser;
         public var matches:uint;
 
-        public function Choice(p:*, m:uint):void{
+        public function Repeat(p:*, m:uint):void{
 
             super('');
 
