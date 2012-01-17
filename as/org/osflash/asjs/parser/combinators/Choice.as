@@ -33,7 +33,7 @@ package org.osflash.asjs.parser.combinators {
             var result:ParserStruct;
 
             for(i = 0; i < parsers.length; i++) {
-                var result = parser[i].getParserStructForState(state);
+                var result = parsers[i].getParserStructForState(state);
                 if(result) break;
             }
 

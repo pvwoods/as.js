@@ -14,7 +14,7 @@ package org.osflash.asjs.parser {
 
         public var cache:Dictionary;
 
-        public function ParserState(input:String, index:uint):void {
+        public function ParserState(input:String, index:uint = 0):void {
             
             parserInput = input;
             parserIndex = index;
@@ -51,9 +51,9 @@ package org.osflash.asjs.parser {
             return parserInput.charAt(parserIndex + index);
         }
 
-        public function getCached(pid:uint):ParserStruct{
+        public function getCached(pid:String):ParserStruct{
 
-           if(!memoize) return null;
+           if(_memoize == false) return null;
 
            var p:Dictionary = cache[pid];
            if(p){
@@ -65,9 +65,9 @@ package org.osflash.asjs.parser {
 
         }
 
-        public function putCached(pid:uint, cache:Parser):void{
+        public function putCached(pid:String, cache:Parser):void{
             
-            if(!memoize) return null;
+            if(_memoize == false) return null;
             
             if(cache[pid] == undefined) cache[pid] = new Dictionary();
                

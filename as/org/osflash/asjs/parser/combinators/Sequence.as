@@ -30,7 +30,7 @@ package org.osflash.asjs.parser.combinators {
             var ast:Array = [];
             var matched:String = "";
             var i:uint;
-            for(i=0; i< parsers.length; ++i) {
+            for(i=0; i< parsers.length; i++) {
                 var result = parsers[i].getParserStructForState(state);
                 if(result != null) {
                     state = result.remaining;
@@ -45,7 +45,7 @@ package org.osflash.asjs.parser.combinators {
             if(i == parsers.length) {
                 cached = new ParserStruct(state, matched, ast);
             } else {
-                cached = false;
+                cached = null;
             }
 
             state.putCached(id, cached);

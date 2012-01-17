@@ -10,7 +10,7 @@ package org.osflash.asjs.parser.combinators {
     public class Range extends BaseParser{
 
         public var upper:String;
-        public var lower:String
+        public var lower:String;
 
         public function Range(l:String, u:String):void{
 
@@ -33,7 +33,7 @@ package org.osflash.asjs.parser.combinators {
                 if(ch >= lower && ch <= upper) {
                     cached = new ParserStruct(state.from(1), ch, ch );
                 } else {
-                    cached = false;
+                    cached = null;
                 }
             }
 

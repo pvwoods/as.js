@@ -8,7 +8,7 @@ package flash.utils {
         protected var _useWeakKeys:Boolean;
 
         // Weak keys are NOT supported
-        public function Dictionary(weakKeys:Boolean):void{
+        public function Dictionary(weakKeys:Boolean = false):void{
 
             _useWeakKeys = weakKeys;
 

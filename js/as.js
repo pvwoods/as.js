@@ -56,10 +56,16 @@ var AS = exports.AS = {
            this._buildPackageStructure(entryClass);
 
            var js = this.transmogrify(srcDir, packageToFile);  
-           if(this.dumping)
-               ASFile += js + '\n';
-
-           eval(js);
+           if(this.dumping) ASFile += js + '\n';
+           if(this.verbose) console.log("NOW EVALUATING :: " + entryClass);
+           try{
+               eval(js);
+           }catch(err){
+               console.log("ERROR EVALUATING :: " + entryClass);
+               console.log("DUMPING JS...");
+               console.log(js);
+               throw err;
+           }
 
            if(!noBoot){
                var bootstrap = "var app = ASPackageRepo." + entryClass + "().__asjs__init__();";
@@ -157,7 +163,9 @@ var AS = exports.AS = {
         dependencies.push(selfClass);
         for(var i = 0; i < dependencies.length; i++){
             if(ClassesSeen[dependencies[i]] !== true) AS.build(srcPath, dependencies[i], true);
-            s = s.replace(new RegExp("new\\s*" + dependencies[i].split('.').pop(), "g"), "ASPackageRepo." + dependencies[i] + "().__asjs__init__");
+            s = s.replace(new RegExp("new\\s*" + dependencies[i].split('.').pop(), "g"), dependencies[i] + "().__asjs__init__");
+            s = s.replace(new RegExp(dependencies[i], "g"), "ASPackageRepo." + dependencies[i]);
+            s = s.replace(new RegExp("import ASPackageRepo\\.", "g"), "import ");
         }
         return s;
     },
@@ -211,7 +219,13 @@ var AS = exports.AS = {
         var a = [];
 
         while(match !== null){
-            v = MODELS.ASClassVariable(match[1], match[2], match[3].substr(1), this._readVariableContents(s, (match.index + match[0].length)));
+            try{
+                v = MODELS.ASClassVariable(match[1], match[2], match[3].substr(1), this._readVariableContents(s, (match.index + match[0].length)));
+            }catch(err){
+                console.log("ERROR CREATING VARIABLE :: ");
+                console.log(match);
+                throw err;
+            }
             variables.push(v);
             a = s.split("");
             a.splice(match.index, match[0].length + v.value.length)
@@ -397,8 +411,8 @@ var MODELS = {
 
             TYPE_DECLERATION_STRUCTURE_REG: new RegExp(":[\\w\\*]*", "gi"),
             OPTIONAL_ARG_REG: new RegExp(/([\w\s]*)\=([\w\s\-\'\*]*)/),
-            VARS_OPEN_STRUCTURE_REG: "[\\s\\(]",
-            VARS_CLOSE_STRUCTURE_REG: "[\\s\\.\\}\\)\\+\\-\\/\\*\\;\\(\\,\\[]",
+            VARS_OPEN_STRUCTURE_REG: "[\\s\\(\\[]",
+            VARS_CLOSE_STRUCTURE_REG: "[\\s\\.\\}\\)\\+\\-\\/\\*\\;\\(\\,\\[\\]]",
 
             modifier: m,
             methodName: n,
