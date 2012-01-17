@@ -10,9 +10,9 @@ package org.osflash.asjs.parser.combinators {
         public var id:uint;
         public var token:String;
 
-        public function BaseParser(pid:uint, s:String){
+        public function BaseParser(s:String){
             
-            id = pid;
+            id = org.osflash.asjs.util.Utils.getUID();
 
             token = s;
 
@@ -38,7 +38,7 @@ package org.osflash.asjs.parser.combinators {
         }
 
         public function toParser(p:*):BaseParser {
-            if(typeof(p).toLowerCase() == "string") return new BaseParser(org.osflash.asjs.util.Utils.getUID(), p);
+            if(typeof(p).toLowerCase() == "string") return new BaseParser(p);
             return p;
         }
 

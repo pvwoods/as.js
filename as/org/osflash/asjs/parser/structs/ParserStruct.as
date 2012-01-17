@@ -6,9 +6,9 @@ package org.osflash.asjs.parser.structs {
         
         public var remaining:ParserState;
         public var match:String;
-        public var ast:String;
+        public var ast:*;
 
-        public function ParserStruct(r:ParserState, m:String, a:String){
+        public function ParserStruct(r:ParserState, m:String, a:*){
             
             remaining = r;
             match = m;

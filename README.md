@@ -25,3 +25,7 @@ to print out the Javascript
 
 1. get the AS implementation up to parity and implemented in a more maintainable fashion
 
+
+## Credit where credit is due
+
+Large parts of the Actionscript parser are based off of the work for jsparse ( https://github.com/doublec/jsparse )

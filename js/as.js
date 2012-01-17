@@ -20,7 +20,7 @@ var AS = exports.AS = {
 
     IMPORT_REG: new RegExp("import\\s\\s*([\\w\\.]*)"),
 
-    CLASS_VARIABLE_REG: "[\\s]*var[\\s]*([\\w]*)([\\:\\s\\w]*)?",
+    CLASS_VARIABLE_REG: "[\\s]*var[\\s]*([\\w]*)([\\:\\s\\w\\*]*)?",
 
     FUNCTION_REG: "[\\s]*function[\\s]*([\\w]*)\\(([\\w\\s\\:\\,\\=\\-\\'\\*]*)\\)[\\s\\:\\w\\*]*",
 
