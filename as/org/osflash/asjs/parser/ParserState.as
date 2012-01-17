@@ -2,6 +2,7 @@ package org.osflash.asjs.parser {
     
     import flash.utils.Dictionary;
     import org.osflash.asjs.parser.structs.ParserStruct;
+    import org.osflash.asjs.parser.combinators.Choice;
 
     public class ParserState {
         

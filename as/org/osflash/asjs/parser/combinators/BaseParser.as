@@ -1,14 +1,16 @@
-package org.osflash.asjs.parser {
+package org.osflash.asjs.parser.combinators {
 
     import org.osflash.asjs.parser.ParserState;
-    import org.osflash.asjs.parsers.structs.ParserStruct;
+    import org.osflash.asjs.parser.structs.ParserStruct;
 
-    public class ParserToken {
+    import org.osflash.asjs.util.Utils;
+
+    public class BaseParser {
         
         public var id:uint;
         public var token:String;
 
-        public function ParserToken(pid:uint, s:String){
+        public function BaseParser(pid:uint, s:String){
             
             id = pid;
 
@@ -16,7 +18,7 @@ package org.osflash.asjs.parser {
 
         }
 
-        public function getState(state:ParserState):ParserStruct{
+        public function getParserStructForState(state:ParserState):ParserStruct{
             
             var cached:ParserState = state.getCached(id);
             if(cached != null) return cached;
@@ -24,15 +26,20 @@ package org.osflash.asjs.parser {
             var r:Boolean = state.length >= token.length && state.substring(0, token.length) == token;
 
             if(r){
-                //cached = { remaining: state.from(token.length), matched: token, ast: token };
                 cached = new ParserStruct(state.from(token.length), token, token);
             }else{
                 cached = null;
             }
+
             state.putCached(id, cached);
             
             return cached;
 
+        }
+
+        public function toParser(p:*):BaseParser {
+            if(typeof(p).toLowerCase() == "string") return new BaseParser(org.osflash.asjs.util.Utils.getUID(), p);
+            return p;
         }
 
     }

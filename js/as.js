@@ -35,15 +35,20 @@ var AS = exports.AS = {
      **/
 
     dumping: false,
+    verbose: false,
 
     
-    build: function(srcDir, entryClass, noBoot, dump){
+    build: function(srcDir, entryClass, noBoot, dump, verb){
 
        if(Classes[entryClass] === undefined){
 
            ClassesSeen[entryClass] = true;
 
            this.dumping = dump === true ? true:this.dumping;
+
+           this.verbose = verb === true ? true:this.verbose;
+           
+           if(this.verbose) console.log("NOW COMPILING :: " + entryClass);
 
            var packageToFile = entryClass.replace(new RegExp("\\.", "g"), "/") + ".as";
            var className = entryClass.substr(entryClass.lastIndexOf(".") + 1);
@@ -76,15 +81,18 @@ var AS = exports.AS = {
         var file = (fs.readFileSync(srcPath + filePath)).toString();
         file = this._replaceTrace(file);
         file = this._strip(file);
+
+        var className = this._extractClassName(file);
+        var packageName = this._extractPackage(file);
+        var selfClass = packageName + (packageName === '' ? "":".") + className;
         
-        file = this._fixDependencies(file, srcPath);
+        file = this._fixDependencies(file, srcPath, selfClass);
         
         var vars = this._extractClassScopeVariables(file);
         var funcs = this._extractFunctions(file);
-        var className = this._extractClassName(file);
-        var packageName = this._extractPackage(file);
-        Classes[packageName + (packageName === '' ? "":".") + className] = MODELS.ASclass(className, this._extractExtensionClass(file), funcs, vars);
-        var p = MODELS.ASpackage(packageName, Classes[packageName + (packageName === '' ? "":".") + className]);
+        
+        Classes[selfClass] = MODELS.ASclass(className, this._extractExtensionClass(file), funcs, vars);
+        var p = MODELS.ASpackage(packageName, Classes[selfClass]);
         return p.JSForm();
     },
 
@@ -103,16 +111,21 @@ var AS = exports.AS = {
         s = s.replace(new RegExp("\\/\\*.*\\*\\/", "g"), "");
         
         // create a token to preserve this returns
-        s = s.replace("return this", "%%RETURN__THIS%%");
+        s = s.replace(new RegExp("return this", "g"), "%%RETURN__THIS%%");
 
         // remove any 'this.' references
-        s = s.replace(new RegExp("this\\.", ""), "");
+        s = s.replace(new RegExp("this\\.", "g"), "");
 
         // remove static ref
-        s = s.replace("static", "");
+        s = s.replace(new RegExp("static", "g"), "");
 
         // change constants to vars
-        s = s.replace("const", "var");
+        s = s.replace(new RegExp("const", "g"), "var");
+
+        // assume that overrides are correct
+        s = s.replace(new RegExp("override", "g"), "");
+
+        //if(this.verbose) console.log("FILE AFTER STRIP :: \n" + s);
 
         return s;
 
@@ -139,13 +152,12 @@ var AS = exports.AS = {
         
     },
 
-    _fixDependencies: function(s, srcPath){
+    _fixDependencies: function(s, srcPath, selfClass){
         var dependencies = this._getDependencies(s);
+        dependencies.push(selfClass);
         for(var i = 0; i < dependencies.length; i++){
-            if(ClassesSeen[dependencies[i]] !== true){
-                AS.build(srcPath, dependencies[i], true);
-                s = s.replace(new RegExp("new\\s*" + dependencies[i].split('.').pop(), "g"), "ASPackageRepo." + dependencies[i] + "().__asjs__init__");
-            }
+            if(ClassesSeen[dependencies[i]] !== true) AS.build(srcPath, dependencies[i], true);
+            s = s.replace(new RegExp("new\\s*" + dependencies[i].split('.').pop(), "g"), "ASPackageRepo." + dependencies[i] + "().__asjs__init__");
         }
         return s;
     },
@@ -165,6 +177,11 @@ var AS = exports.AS = {
             a.splice(match.index, match[0].length + f.contents.length)
             s = a.join("");
             match = r.exec(s);
+        }
+
+        if(this.verbose){
+            console.log("FOUND FUNCTIONS ::");
+            console.log(functions);
         }
 
         return functions;
@@ -200,6 +217,11 @@ var AS = exports.AS = {
             a.splice(match.index, match[0].length + v.value.length)
             s = a.join("");
             match = r.exec(s);
+        }
+
+        if(this.verbose){
+            console.log("FOUND VARIABLES :: ");
+            console.log(variables);
         }
 
         return variables;

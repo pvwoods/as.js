@@ -15,7 +15,7 @@ package org.osflash.asjs.parser {
             
             _parserState = new ParserState();
 
-        }
+        }        
 
 
 
