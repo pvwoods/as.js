@@ -59,7 +59,7 @@ var AS = exports.AS = {
            if(this.dumping) ASFile += js + '\n';
            if(this.verbose) console.log("NOW EVALUATING :: " + entryClass);
            try{
-               eval(js);
+               //eval(js);
            }catch(err){
                console.log("ERROR EVALUATING :: " + entryClass);
                console.log("DUMPING JS...");
@@ -411,6 +411,7 @@ var MODELS = {
         return {
 
             TYPE_DECLERATION_STRUCTURE_REG: new RegExp(":[\\w\\s\\*]*", "gi"),
+            VAR_DECLERATION_STRUCTURE_REG: new RegExp("var\\s*([\\w\\s]*):[\\w\\*]*", "gi"),
             OPTIONAL_ARG_REG: new RegExp(/([\w\s]*)\=([\w\s\-\'\*]*)/),
             VARS_OPEN_STRUCTURE_REG: "[\\s\\(\\[]",
             VARS_CLOSE_STRUCTURE_REG: "[\\s\\.\\}\\)\\+\\-\\/\\*\\;\\(\\,\\[\\]]",
@@ -453,7 +454,16 @@ var MODELS = {
             },
             
             JSForm: function(superReplacement){
-                var c = this.contents.replace(this.TYPE_DECLERATION_STRUCTURE_REG, "");
+                //var c = this.contents.replace(this.TYPE_DECLERATION_STRUCTURE_REG, "");
+
+                var c = this.contents;
+
+                var match = this.VAR_DECLERATION_STRUCTURE_REG.exec(c);
+                while(match !== null){
+                   c = c.replace(new RegExp("var\\s*" + match[1] + "\\s*:[\\w\\*]*"), "var " + match[1]);
+                   match = this.VAR_DECLERATION_STRUCTURE_REG.exec(c);
+                }
+
                 c = c.replace("super(", "this." + superReplacement + "(");
                 c = c.replace("%%RETURN__THIS%%", "return this");
                 return this.methodName + ": function(" + this._argsJSForm() + "){\n" + this.optionalArgContents + c.substr(1) + ",\n";

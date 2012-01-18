@@ -70,11 +70,11 @@ package org.osflash.asjs {
         }
 
         public function runREPL():void{
-            trace("Starting AS.JS REPL\n");
+            trace("\n + Starting AS.JS REPL + \n");
             var stdin = process.openStdin();
             process.stdout.write("> ");
             var parser:ASParser = new ASParser();
-            stdin.on('data', function(chunk:*) {
+            stdin.on('data', function(chunk) {
                 var s:String = chunk.toString();
                 s = s.substring(0, s.length - 1);
                 if(s == "exit()" || s == "exit" || s == "exit();" || s == "exit;") process.exit();
