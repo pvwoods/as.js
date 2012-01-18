@@ -1,12 +1,14 @@
 package org.osflash.asjs.parser {
     
-    import org.osflash.asjs.parser.CombinatorParser;
-
-    public class ASParser extends CombinatorParser {
+    public class ASParser {
 
         public function ASParser():void{
 
 
+        }
+
+        public function evaluate(s:String):void{
+            trace(" $$$ " + s);
         }
 
     }
