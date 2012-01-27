@@ -1171,9 +1171,10 @@ PackageStatement
 
 
 ClassStatement
- = MethodModifier __ ClassToken __ name:Identifier {
+ = modifier:MethodModifier __ ClassToken __ name:Identifier {
       return {
         type:         "ClassStatement",
+        modifier: modifier,
         name: name
       };
     }
