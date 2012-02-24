@@ -20,6 +20,10 @@ package org.osflash.asjs {
             _commands["--version"] = printVersion;
             _commands["-t"] = transmogrify;
             _commands["--transmogrify"] = transmogrify;
+            _commands["-e"] = evaluate;
+            _commands["--evaluate"] = evaluate;
+
+
             
             // handle the args
             if(process.argv.length == 2){
@@ -51,6 +55,7 @@ package org.osflash.asjs {
             trace("\nUsage -> asjs [<args>]");
             trace("\nAvailable Commands:");
             trace("\t-t --transmogrify\ttransform AS3 to JS and print");
+            trace("\t-e --evaluate\tevaluate AS3 file");
             trace("\t-h --help\t\tShow AS.JS help");
             trace("\t-v --version\t\tShow AS.JS version");
             trace("\t--credits\t\tShow AS.JS credits");
@@ -67,8 +72,13 @@ package org.osflash.asjs {
         public function transmogrify(argIndex:uint, args:Array):void{
             
             var parser:ASParser = new ASParser("./peg/as3.pegjs");
-            trace(console.log(parser.transmogrify(args[argIndex + 1])));
+            trace(parser.transmogrify(args[argIndex + 1]));
 
+        }
+
+        public function evaluate(argIndex:uint, args:Array):void{
+            var parser:ASParser = new ASParser("./peg/as3.pegjs");
+            eval("(" + parser.transmogrify(args[argIndex + 1]) + ")");
         }
 
         public function runREPL():void{

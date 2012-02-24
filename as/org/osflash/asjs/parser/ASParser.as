@@ -1,7 +1,5 @@
 package org.osflash.asjs.parser {
     
-    import org.osflash.asjs.parser.ParserToken;
-
     public class ASParser {
 
         protected var PEG:PegJS = require("pegjs");

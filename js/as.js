@@ -3,7 +3,7 @@
  * 
  * This particular version of as.js acts
  * as nothing more than a finicky bootstrap
- * compiler/converter for writing the v0.1
+ * compiler/converter for writing the v0.2
  * actionscript version.  Therefore, there
  * are a lot of hacks here that will be understood as "good enough for now".
  */
