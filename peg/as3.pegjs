@@ -1199,7 +1199,7 @@ VariableStatement
     }
 
 VariableDeclarationList
-  = head:VariableDeclaration tail:(__ "," __ VariableDeclaration)* {
+  = modifier:MethodModifier? __ head:VariableDeclaration tail:(__ "," __ VariableDeclaration)* {
       var result = [head];
       for (var i = 0; i < tail.length; i++) {
         result.push(tail[i][3]);
@@ -1502,13 +1502,15 @@ DebuggerStatement
 /* ===== A.5 Functions and Programs ===== */
 
 FunctionDeclaration
-  = modifier:MethodModifier? __ FunctionToken __ name:Identifier __
+  = modifier:MethodModifier? __ FunctionToken __ name:Identifier __ 
     "(" __ params:FormalParameterList? __ ")" __
+    varType:VariableTypeDecleration? 
     "{" __ elements:FunctionBody __ "}" {
       return {
         modifier: modifier,
         type:     "Function",
         name:     name,
+        varType:  varType != "" ? varType:"",
         params:   params !== "" ? params : [],
         elements: elements
       };
