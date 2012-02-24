@@ -1162,10 +1162,10 @@ StatementList
     }
 
 PackageStatement
- = PackageToken __ name:(IdentifierPart / ".")+ {
+ = PackageToken __ name:((Identifier / ".")+)? {
       return {
         type:         "PackageStatement",
-        name: name.join("")
+        name: name != "" ? name.join(""):""
       };
     }
 

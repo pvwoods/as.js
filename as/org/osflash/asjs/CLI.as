@@ -65,7 +65,9 @@ package org.osflash.asjs {
         }
 
         public function transmogrify(argIndex:uint, args:Array):void{
-
+            
+            var parser:ASParser = new ASParser("./peg/as3.pegjs");
+            trace(console.log(parser.transmogrify(args[argIndex + 1])));
 
         }
 
@@ -73,12 +75,12 @@ package org.osflash.asjs {
             trace("\n + Starting AS.JS REPL + \n");
             var stdin = process.openStdin();
             process.stdout.write("> ");
-            var parser:ASParser = new ASParser();
+            var parser:ASParser = new ASParser("./peg/as3.pegjs");
             stdin.on('data', function(chunk) {
                 var s:String = chunk.toString();
                 s = s.substring(0, s.length - 1);
                 if(s == "exit()" || s == "exit" || s == "exit();" || s == "exit;") process.exit();
-                parser.evaluate(s);
+                console.log(parser.evaluate(s) + "\n");
                 process.stdout.write("> ");
             });
         }
