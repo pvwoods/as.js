@@ -1202,7 +1202,7 @@ VariableStatement
         type:         "VariableStatement",
         modifier:     modifier,
         acceessScope: accessScope,
-        isStatic: isStatic !="" ? true:false,
+        isStatic: isStatic !="" ? true:false, 
         declarations: declarations
       };
     }
