@@ -1190,8 +1190,9 @@ ImportStatement
 
 
 VariableStatement
-  = VarToken __ declarations:VariableDeclarationList EOS {
+  = modifier:MethodModifier? __ VarToken __ declarations:VariableDeclarationList EOS {
       return {
+        modifier:     modifier,
         type:         "VariableStatement",
         declarations: declarations
       };
@@ -1216,7 +1217,17 @@ VariableDeclarationListNoIn
     }
 
 VariableDeclaration
-  = name:Identifier __ value:Initialiser? {
+  = name:Identifier __ varType:VariableTypeDecleration? __ value:Initialiser? {
+      return {
+        type:  "VariableDeclaration",
+        varType: varType !== "" ? varType : null,
+        name:  name,
+        value: value !== "" ? value : null
+      };
+    }
+
+VariableDeclarationNoIn
+  = name:Identifier __ varType:VariableTypeDecleration? __ value:InitialiserNoIn? {
       return {
         type:  "VariableDeclaration",
         name:  name,
@@ -1224,14 +1235,8 @@ VariableDeclaration
       };
     }
 
-VariableDeclarationNoIn
-  = name:Identifier __ value:InitialiserNoIn? {
-      return {
-        type:  "VariableDeclaration",
-        name:  name,
-        value: value !== "" ? value : null
-      };
-    }
+VariableTypeDecleration
+ = ":" __ varType:Identifier { return varType; }
 
 Initialiser
   = "=" (!"=") __ expression:AssignmentExpression { return expression; }
@@ -1497,10 +1502,11 @@ DebuggerStatement
 /* ===== A.5 Functions and Programs ===== */
 
 FunctionDeclaration
-  = FunctionToken __ name:Identifier __
+  = modifier:MethodModifier? __ FunctionToken __ name:Identifier __
     "(" __ params:FormalParameterList? __ ")" __
     "{" __ elements:FunctionBody __ "}" {
       return {
+        modifier: modifier,
         type:     "Function",
         name:     name,
         params:   params !== "" ? params : [],
@@ -1509,10 +1515,11 @@ FunctionDeclaration
     }
 
 FunctionExpression
-  = FunctionToken __ name:Identifier? __
+  = modifier:MethodModifier? __ FunctionToken __ name:Identifier? __
     "(" __ params:FormalParameterList? __ ")" __
     "{" __ elements:FunctionBody __ "}" {
       return {
+        modifier: modifier,
         type:     "Function",
         name:     name !== "" ? name : null,
         params:   params !== "" ? params : [],
