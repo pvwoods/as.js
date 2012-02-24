@@ -4,6 +4,7 @@ package org.osflash.asjs {
 
     import org.osflash.asjs.ConfigData;
     import org.osflash.asjs.parser.ASParser;
+    import org.osflash.asjs.parser.Prelude;
 
     public class CLI {
 
@@ -72,7 +73,8 @@ package org.osflash.asjs {
         public function transmogrify(argIndex:uint, args:Array):void{
             
             var parser:ASParser = new ASParser("./peg/as3.pegjs");
-            trace(parser.transmogrify(args[argIndex + 1]));
+            var prelude:Prelude = new Prelude();
+            trace(prelude.generatePrelude() + "\n" + parser.transmogrify(args[argIndex + 1]));
 
         }
 
