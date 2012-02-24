@@ -1528,7 +1528,7 @@ FunctionExpression
     }
 
 FormalParameterList
-  = head:Identifier tail:(__ "," __ Identifier)* {
+  = head:Identifier __ VariableTypeDecleration? tail:(__ "," __ Identifier __ VariableTypeDecleration?)* {
       var result = [head];
       for (var i = 0; i < tail.length; i++) {
         result.push(tail[i][3]);
