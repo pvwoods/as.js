@@ -5,7 +5,7 @@ package {
         private const a:Number = 1;
         internal static var b:Number = 2;
 
-        public function StaticConst(){
+        public function StaticConst():void{
             
             trace("a contains " + a);
 

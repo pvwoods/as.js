@@ -395,7 +395,7 @@ ThrowToken      = "throw"            !IdentifierPart
 TrueToken       = "true"             !IdentifierPart
 TryToken        = "try"              !IdentifierPart
 TypeofToken     = "typeof"           !IdentifierPart { return "typeof"; }
-VarToken        = "var"              !IdentifierPart
+VarToken        = "var"              !IdentifierPart { return "var"; }
 VoidToken       = "void"             !IdentifierPart { return "void"; }
 WhileToken      = "while"            !IdentifierPart
 WithToken       = "with"             !IdentifierPart
@@ -403,6 +403,8 @@ PackageToken    = "package"          !IdentifierPart
 ClassToken      = "class"            !IdentifierPart
 ImportToken     = "import"           !IdentifierPart
 ExtendsToken    = "extends"          !IdentifierPart
+ConstToken      = "const"            !IdentifierPart { return "const"; }
+StaticToken     = "static"           !IdentifierPart { return "static"; }
 
 
 /*
@@ -1195,10 +1197,12 @@ ImportStatement
 
 
 VariableStatement
-  = modifier:MethodModifier? __ VarToken __ declarations:VariableDeclarationList EOS {
+  = modifier:MethodModifier? __ isStatic:StaticToken? __ accessScope:(VarToken /ConstToken) __ declarations:VariableDeclarationList EOS {
       return {
-        modifier:     modifier,
         type:         "VariableStatement",
+        modifier:     modifier,
+        acceessScope: accessScope,
+        isStatic: isStatic !="" ? true:false,
         declarations: declarations
       };
     }
@@ -1239,6 +1243,7 @@ VariableDeclarationNoIn
         value: value !== "" ? value : null
       };
     }
+
 
 VariableTypeDecleration
  = ":" __ varType:(IdentifierPart)+ { return varType.join(""); }
