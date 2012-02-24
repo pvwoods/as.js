@@ -173,7 +173,6 @@ FutureReservedWord
       / "export"
       / "extends"
       / "import"
-      / "super"
     )
     !IdentifierPart
 
@@ -403,6 +402,7 @@ WithToken       = "with"             !IdentifierPart
 PackageToken    = "package"          !IdentifierPart
 ClassToken      = "class"            !IdentifierPart
 ImportToken     = "import"           !IdentifierPart
+ExtendsToken    = "extends"          !IdentifierPart
 
 
 /*
@@ -1171,13 +1171,18 @@ PackageStatement
 
 
 ClassStatement
- = modifier:MethodModifier __ ClassToken __ name:Identifier {
+ = modifier:MethodModifier __ ClassToken __ name:Identifier __ extension:ClassExtension? {
       return {
         type:         "ClassStatement",
+        extension: extension != "" ? extension:"",
         modifier: modifier,
         name: name
       };
     }
+
+ClassExtension
+ = ExtendsToken __ extension:Identifier { return extension }
+
 
 ImportStatement
  = ImportToken __ name:(IdentifierPart / ".")+ {
@@ -1236,7 +1241,7 @@ VariableDeclarationNoIn
     }
 
 VariableTypeDecleration
- = ":" __ varType:Identifier { return varType; }
+ = ":" __ varType:(IdentifierPart)+ { return varType.join(""); }
 
 Initialiser
   = "=" (!"=") __ expression:AssignmentExpression { return expression; }
