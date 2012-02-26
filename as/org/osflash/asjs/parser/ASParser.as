@@ -1,5 +1,7 @@
 package org.osflash.asjs.parser {
     
+    import org.osflash.asjs.parser.JSRenderer;
+    
     public class ASParser {
 
         protected var PEG:PegJS = require("pegjs");
@@ -17,8 +19,17 @@ package org.osflash.asjs.parser {
             return _parser.parse(s); 
         }
 
-        public function transmogrify(fileName:String):String{
-            return JSON.stringify(_parser.parse(getFileContents(fileName)));
+        public function transmogrify(srcDirectory:String, className:String):String{
+            
+            var classNamePath:String = className.replace(/\./g, "/") + ".as";
+
+            var structure:Object = _parser.parse(getFileContents(srcDirectory + classNamePath));
+            var renderer:JSRenderer = new JSRenderer(structure);
+
+            var s:String = renderer.renderAsString() + "\n";
+            s += className + "." + className.split(".").pop() + "();";
+
+            return s;
         }
         
         protected function getFileContents(fileName:String):String{

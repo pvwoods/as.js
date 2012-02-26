@@ -55,11 +55,11 @@ package org.osflash.asjs {
             
             trace("\nUsage -> asjs [<args>]");
             trace("\nAvailable Commands:");
-            trace("\t-t --transmogrify\ttransform AS3 to JS and print");
-            trace("\t-e --evaluate\tevaluate AS3 file");
-            trace("\t-h --help\t\tShow AS.JS help");
-            trace("\t-v --version\t\tShow AS.JS version");
-            trace("\t--credits\t\tShow AS.JS credits");
+            trace("\t-t --transmogrify\t<sourceDirectory> <MainClass>\ttransform AS3 to JS and print");
+            trace("\t-e --evaluate\t\t<sourceDirectory> <MainClass>\tevaluate AS3 file");
+            trace("\t-h --help\t\t\t\t\t\tShow AS.JS help");
+            trace("\t-v --version\t\t\t\t\t\tShow AS.JS version");
+            trace("\t--credits\t\t\t\t\t\tShow AS.JS credits");
 
 
         }
@@ -74,13 +74,14 @@ package org.osflash.asjs {
             
             var parser:ASParser = new ASParser("./peg/as3.pegjs");
             var prelude:Prelude = new Prelude();
-            trace(prelude.generatePrelude() + "\n" + parser.transmogrify(args[argIndex + 1]));
+            trace(prelude.generatePrelude() + "\n" + parser.transmogrify(args[argIndex + 1], args[argIndex + 2]));
 
         }
 
         public function evaluate(argIndex:uint, args:Array):void{
             var parser:ASParser = new ASParser("./peg/as3.pegjs");
-            eval("(" + parser.transmogrify(args[argIndex + 1]) + ")");
+            var prelude:Prelude = new Prelude();
+            eval(prelude.generatePrelude() + "\n" + parser.transmogrify(args[argIndex + 1], args[argIndex + 2]));
         }
 
         public function runREPL():void{

@@ -103,7 +103,8 @@ var AS = exports.AS = {
     },
 
     _replaceTrace: function(s){
-        return s.replace(new RegExp("trace", "g"), "AS.trace");
+        //return s.replace(new RegExp("trace", "g"), "AS.trace");
+        return s;
     },
     
     
@@ -500,5 +501,5 @@ var MODELS = {
 var ASPackageRepo = {};
 var Classes = {};
 var ClassesSeen = {}; // this guards against circular imports
-var ASFile = 'var AS = { trace: function(){ if(console && console.log) console.log.apply(null, arguments) }, extendClass: function(a, b){ for(var k in b){ if(b.hasOwnProperty(k) && a[k] === undefined) a[k] = b[k]; } return a;}};';
+var ASFile = 'var trace = function(){ if(console && console.log) console.log.apply(null, arguments); }; var AS = { trace: function(){ if(console && console.log) console.log.apply(null, arguments) }, extendClass: function(a, b){ for(var k in b){ if(b.hasOwnProperty(k) && a[k] === undefined) a[k] = b[k]; } return a;}};';
     
