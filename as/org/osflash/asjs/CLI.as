@@ -23,6 +23,9 @@ package org.osflash.asjs {
             _commands["--transmogrify"] = transmogrify;
             _commands["-e"] = evaluate;
             _commands["--evaluate"] = evaluate;
+             _commands["-p"] = printPeg;
+            _commands["--peg"] = printPeg;
+
 
 
             
@@ -57,6 +60,7 @@ package org.osflash.asjs {
             trace("\nAvailable Commands:");
             trace("\t-t --transmogrify\t<sourceDirectory> <MainClass>\ttransform AS3 to JS and print");
             trace("\t-e --evaluate\t\t<sourceDirectory> <MainClass>\tevaluate AS3 file");
+            trace("\t-p --peg\t\t<sourceDirectory> <MainClass>\tdumps the peg JSON");
             trace("\t-h --help\t\t\t\t\t\tShow AS.JS help");
             trace("\t-v --version\t\t\t\t\t\tShow AS.JS version");
             trace("\t--credits\t\t\t\t\t\tShow AS.JS credits");
@@ -68,6 +72,11 @@ package org.osflash.asjs {
 
             trace("v" + _configData.VERSION_NUMBER);
 
+        }
+
+        public function printPeg(argIndex:uint, args:Array):void{
+            var parser:ASParser = new ASParser("./peg/as3.pegjs");
+            trace(parser.getPegJsonString(args[argIndex + 1], args[argIndex + 2]));
         }
 
         public function transmogrify(argIndex:uint, args:Array):void{

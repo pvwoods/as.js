@@ -27,9 +27,13 @@ package org.osflash.asjs.parser {
             var renderer:JSRenderer = new JSRenderer(structure);
 
             var s:String = renderer.renderAsString() + "\n";
-            s += className + "." + className.split(".").pop() + "();";
+            s += "new " + className + "()." + className.split(".").pop() + "();";
 
             return s;
+        }
+
+        public function getPegJsonString(srcDirectory:String, className:String):String{
+            return JSON.stringify(_parser.parse(getFileContents(srcDirectory + className.replace(/\./g, "/") + ".as")));
         }
         
         protected function getFileContents(fileName:String):String{

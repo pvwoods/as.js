@@ -611,11 +611,12 @@ NewExpression
 
 CallExpression
   = base:(
-      name:MemberExpression __ arguments:Arguments {
+      name:MemberExpression __ arguments:Arguments __ eold:(";")? {
         return {
           type:      "FunctionCall",
           name:      name,
-          arguments: arguments
+          arguments: arguments,
+          eold: eold != "" ? true:false
         };
       }
     )
@@ -1128,6 +1129,7 @@ Statement
   = Block
   / PackageStatement
   / ImportStatement
+  / ClassVariableStatement
   / VariableStatement
   / ClassStatement
   / EmptyStatement
@@ -1195,11 +1197,10 @@ ImportStatement
     }
 
 
-
-VariableStatement
-  = modifier:MethodModifier? __ isStatic:StaticToken? __ accessScope:(VarToken /ConstToken) __ declarations:VariableDeclarationList EOS {
+ClassVariableStatement
+  = modifier:MethodModifier isStatic:StaticToken? __ accessScope:(VarToken /ConstToken) __ declarations:VariableDeclarationList EOS {
       return {
-        type:         "VariableStatement",
+        type:         "ClassVariableStatement",
         modifier:     modifier,
         acceessScope: accessScope,
         isStatic: isStatic !="" ? true:false, 
@@ -1207,8 +1208,16 @@ VariableStatement
       };
     }
 
+VariableStatement
+  = VarToken __ declarations:VariableDeclarationList EOS {
+      return {
+        type:         "VariableStatement",
+        declarations: declarations
+      };
+    }
+
 VariableDeclarationList
-  = modifier:MethodModifier? __ head:VariableDeclaration tail:(__ "," __ VariableDeclaration)* {
+  = head:VariableDeclaration tail:(__ "," __ VariableDeclaration)* {
       var result = [head];
       for (var i = 0; i < tail.length; i++) {
         result.push(tail[i][3]);
