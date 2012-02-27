@@ -27,7 +27,7 @@ package org.osflash.asjs.parser {
             var renderer:JSRenderer = new JSRenderer(structure);
 
             var s:String = renderer.renderAsString() + "\n";
-            s += "new " + className + "()." + className.split(".").pop() + "();";
+            s += "new " + className + "();";
 
             return s;
         }

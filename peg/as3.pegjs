@@ -645,7 +645,7 @@ CallExpression
         switch (argumentsOrAccessors[i].type) {
           case "FunctionCallArguments":
             result = {
-              type:      "FuctionCall",
+              type:      "FunctionCall",
               name:      result,
               arguments: argumentsOrAccessors[i].arguments
             };

@@ -10,7 +10,8 @@ package {
             this.a += 1;
             
             var c:Number = add(a, b);
-
+            trace(a);
+            trace(b);
             trace(c);
 
         }
