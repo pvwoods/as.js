@@ -96,7 +96,7 @@ package org.osflash.asjs.parser {
 
             _classScopedFunctions.push(o.name);
             
-            //handle params
+            s += o.params.join(", ");
             
             s += "){"
             
@@ -111,8 +111,6 @@ package org.osflash.asjs.parser {
         protected function PEG_FunctionCall(o:Object, p:Object):String{
 
             var s:String = this[getPegFunctionName(o.name.type)](o.name, o);
-            // _b64 is a hack for this. stripping in 0.1 compiler
-            //if(p.type != "PropertyAccess" && isBuiltInFunc(s) == false) s = _b64.decode("dGhpcy4=") + s;
             s += "(";
             if(o.arguments != null){
                 
