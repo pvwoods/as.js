@@ -14,7 +14,7 @@ package {
         }
 
         public function add(e:Number, f:Number):int{
-            return int(e + f);
+            return e + f;
         }
 
     }

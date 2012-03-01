@@ -119,7 +119,7 @@ package org.osflash.asjs.parser {
                 }
                 if(o.arguments.length > 0) s += this[getPegFunctionName(o.arguments[o.arguments.length - 1].type)](o.arguments[o.arguments.length - 1], o);
             }
-            return s + ")" + ((o.eold != undefined && o.eold == true) ? ";":"");
+            return s + ")" + ((p.type == "Block") ? ";":"");
         }
 
         protected function PEG_ReturnStatement(o:Object, p:Object):String{
@@ -188,8 +188,42 @@ package org.osflash.asjs.parser {
             return this[getPegFunctionName(o.left.type)](o.left, o) + o.operator + this[getPegFunctionName(o.right.type)](o.right, o) + ";";
         }
 
+        protected function PEG_UnaryExpression(o:Object, p:Object):String{
+            return o.operator +  this[getPegFunctionName(o.expression.type)](o.expression, o) + ((p.type == "Block") ? ";":"");
+        }
+
         protected function PEG_BinaryExpression(o:Object, p:Object):String{
             return this[getPegFunctionName(o.left.type)](o.left, o) + o.operator + this[getPegFunctionName(o.right.type)](o.right, o);
+        }
+
+        protected function PEG_PostfixExpression(o:Object, p:Object):String{
+            return this[getPegFunctionName(o.expression.type)](o.expression, o) + o.operator + ((p.type == "Block") ? ";":"");
+        }
+
+        protected function PEG_IfStatement(o:Object, p:Object):String{
+            var s:String = "if(" + this[getPegFunctionName(o.condition.type)](o.condition, o);
+            s += "){" + this[getPegFunctionName(o.ifStatement.type)](o.ifStatement, o) + "}";
+            if(o.elseStatement != null) s += "else{ " + this[getPegFunctionName(o.elseStatement.type)](o.elseStatement, o) + "}";
+            return s;
+        }
+
+        protected function PEG_WhileStatement(o:Object, p:Object):String{
+            return "while(" + this[getPegFunctionName(o.condition.type)](o.condition, o) + ")" +  this[getPegFunctionName(o.statement.type)](o.statement, o);
+        }
+
+        protected function PEG_DoWhileStatement(o:Object, p:Object):String{
+            var s:String = "do";
+            s += this[getPegFunctionName(o.statement.type)](o.statement,o);
+            s += "while(" + this[getPegFunctionName(o.condition.type)](o.condition,o) + ");";
+            return s;
+        }
+
+        protected function PEG_ForStatement(o:Object, p:Object):String{
+            var s:String = "for(";
+            if(o.initializer != undefined && o.initializer != null) s += this[getPegFunctionName(o.initializer.type)](o.initializer,o) + ";";
+            if(o.test != undefined && o.test != null) s += this[getPegFunctionName(o.test.type)](o.test,o) + ";";
+            if(o.counter) s += this[getPegFunctionName(o.counter.type)](o.counter,o) + ")";
+            return s + this[getPegFunctionName(o.statement.type)](o.statement,o);
         }
 
         /**
@@ -203,6 +237,8 @@ package org.osflash.asjs.parser {
         protected function translateObjectToJS(o:Object):String{
             extractClassScopedIdentifiers(o);
             var s:String = this[getPegFunctionName(o.type)](o.elements, o);
+            // this is an ugly hack until I determine a good way to place semicolons
+            s = s.replace(/;;/g, ";");
             return s;
         }
                 
