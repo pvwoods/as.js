@@ -10,7 +10,7 @@
 ##Road Map
 
 ###COMPLETE
-1. 0.0.2 compiler passes all 0.0.1 test files
+    0.0.2 compiler passes all 0.0.1 test files
 
 ###TO-DO
 
