@@ -3,6 +3,8 @@ package org.osflash.asjs.parser {
     import org.osflash.asjs.parser.objects.ASPackageStructure;
     import org.osflash.asjs.parser.ASParser;
 
+    import flash.utils.Dictionary;
+
     public class JSRenderer {
 
         protected var _BUILT_IN_FUNCTIONS:Array = ["trace"];
@@ -15,8 +17,12 @@ package org.osflash.asjs.parser {
         protected var _classScopedFunctions:Array = []; // any class functions
 
         protected var _importedClasses:String = "";
+        protected var _extensionClass:String = "";
+        protected var _classnameToParser:Dictionary;
 
         public function JSRenderer(structure:Object):void{
+
+            _classnameToParser = new Dictionary();
             
             _result = translateObjectToJS(structure);
             // hack until statics implemented
@@ -49,7 +55,7 @@ package org.osflash.asjs.parser {
 
         }
         
-        // the package block is rendered without {}
+        // special handler for a package level block
         protected function PEG_PackageBlock(o:Object, p:Object):String{
 
             var elems:Array = o.statements;
@@ -64,8 +70,10 @@ package org.osflash.asjs.parser {
                 switch(elems[i].type){
                     case "ImportStatement":
                         // currently does not handle circular imports
-                        _importedClasses += new ASParser("").transmogrify(ASPackageRepo.ROOT_SRC_DIR, elems[i].name);
-                        importMaps += "ret." + elems[i].name.split(".").pop() + "= " + elems[i].name + "; ";
+                        var parser:ASParser = new ASParser("");
+                        _importedClasses += parser.transmogrify(ASPackageRepo.ROOT_SRC_DIR, elems[i].name);
+                        _classnameToParser[elems[i].name.split(".").pop()] = parser;
+                        importMaps += "ret.CLASS_" + elems[i].name.split(".").pop() + "= " + elems[i].name + "; ";
                         break;
                     default:
                         s += this[getPegFunctionName(elems[i].type)](elems[i], o);
@@ -75,7 +83,8 @@ package org.osflash.asjs.parser {
             // hack for the finicky nature of the 0.1 compiler with Strings '};'
             s += ";";
             s += importMaps;
-            s += "if(ret[CLASS_NAME] !== undefined) ret[CLASS_NAME](arguments); return ret;" + _b64.decode("fTs=");
+            if(_extensionClass != "") s += "ASJS_extendClass(ret, new ret.CLASS_" + _extensionClass + "(true));";
+            s += "if(ret[CLASS_NAME] !== undefined && noInvoke != true) ret[CLASS_NAME](arguments); return ret;" + _b64.decode("fTs=");
             return s;
 
         }
@@ -105,9 +114,14 @@ package org.osflash.asjs.parser {
         }
 
         protected function PEG_ClassStatement(o:Object, p:Object):String{
-            // hack for the finicky nature of the 0.1 compiler with Strings '= function(){'
-            var s:String = o.name + " " + _b64.decode("PSBmdW5jdGlvbigpeyA=");
+            // hack for the finicky nature of the 0.1 compiler with Strings '= function(noInvoke){'
+            var s:String = o.name + " " + _b64.decode("PSBmdW5jdGlvbihub0ludm9rZSl7");
             s += "var CLASS_NAME = '" + o.name + "'; var ret = ";
+            _extensionClass = o.extension;
+            if(_extensionClass != ""){
+                _classScopedVariables = _classScopedVariables.concat(_classnameToParser[_extensionClass].renderer.getClassScopedVariables());
+                _classScopedFunctions = _classScopedFunctions.concat(_classnameToParser[_extensionClass].renderer.getClassScopedFunctions());
+            }
             return s;
         }
 
@@ -132,6 +146,8 @@ package org.osflash.asjs.parser {
         protected function PEG_FunctionCall(o:Object, p:Object):String{
 
             var s:String = this[getPegFunctionName(o.name.type)](o.name, o);
+            // hack to override super function call to 'this.' + _extensionClass
+            if(s == "super") s = _b64.decode("dGhpcy4=") + _extensionClass;
             s += "(";
             if(o.arguments != null){
                 
@@ -207,7 +223,7 @@ package org.osflash.asjs.parser {
 
         protected function PEG_NewOperator(o:Object, p:Object):String{
             // hack for 'new this.'
-            var s:String = _b64.decode("bmV3IHRoaXMu") + this[getPegFunctionName(o.cnstruct.type)](o.cnstruct, o) + "(";
+            var s:String = _b64.decode("bmV3IHRoaXMu") + "CLASS_" + this[getPegFunctionName(o.cnstruct.type)](o.cnstruct, o) + "(";
             for(var n:String in o.arguments) s += this[getPegFunctionName(o.arguments[n].type)](o.arguments[n], o) + ",";
             if(s.charAt(s.length - 1) == ",") s.substring(0, s.length-1);
             return s + ")" + (p.type == "Block" ? ";":"");
@@ -301,6 +317,15 @@ package org.osflash.asjs.parser {
 
         protected function needsSemiColon(p:Object):Boolean{
             return ((p.type == "Block") || (p.type == "Function"));
+        }
+
+        public function getClassScopedVariables():Array {
+            return _classScopedVariables;
+        }
+
+        public function getClassScopedFunctions():Array {
+            return _classScopedFunctions;
+        }
 
     }
 

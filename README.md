@@ -14,7 +14,8 @@
 
 ###TO-DO
 
-    0.0.3 : get the 0.0.2 compiler to compile itself
-    0.0.4 : fix a number of hacks present in the 0.0.3 compiler (base64 encoding, lack of use of statics and consts)
-    0.0.5 : to be determined...
+    0.0.3 : get the 0.0.2 compiler to parse itself
+    0.0.4 : get the 0.0.3 compiler to compile itself
+    0.0.5 : fix a number of hacks present in the 0.0.4 compiler (base64 encoding, lack of use of statics and consts, general structural bits)
+    0.0.6 : to be determined... 
 

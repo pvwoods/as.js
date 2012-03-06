@@ -8,6 +8,8 @@ package org.osflash.asjs.parser {
         protected var PEG:PegJS = require("pegjs");
         protected var FS:fs = require("fs");
         protected var _parser:PegParser;
+        
+        public var renderer:JSRenderer;
 
         public function ASParser(pegFile:String):void{
             
@@ -32,7 +34,7 @@ package org.osflash.asjs.parser {
 
             var structure:Object = _parser.parse(getFileContents(srcDirectory + classNamePath));
             //trace(JSON.stringify(structure));
-            var renderer:JSRenderer = new JSRenderer(structure);
+            renderer = new JSRenderer(structure);
 
             var s:String = "";
             if(isMain) s += ASPackageRepo.__PACK_STRUCTURE__.toJsonString() + "\n";
