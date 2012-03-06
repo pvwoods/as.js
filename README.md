@@ -1,27 +1,20 @@
 #AS in your JS
 
-## Running v0.0.1 compiler with 0.0.2 dev
+## Running v0.0.2 compiler
 
-    git clone ...
+    git clone https://github.com/pvwoods/as.js
     npm install -g
-    asjs srcDirectory/ com.asjs.MyClass
+    asjs --help
 
-or 
-
-    asjs -c srcDirectory/ com.asjs.MyClass 
-
-to print out the Javascript
 
 ##Road Map
 
 ###COMPLETE
-1. pass all current tests
+1. 0.0.2 compiler passes all 0.0.1 test files
 
 ###TO-DO
-2. re-implement as.js in ActionScript
-3. Add js version of flash standard library (Sprite, MovieClip, Bitmap, etc);
 
-###Specific 0.0.2 goals
-
-1. get the AS implementation up to parity and implemented in a more maintainable fashion
+0.0.3 : get the 0.0.2 compiler to compile itself
+0.0.4 : fix a number of hacks present in the 0.0.3 compiler (base64 encoding, lack of use of statics and consts)
+0.0.5 : to be determined...
 
