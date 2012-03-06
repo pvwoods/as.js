@@ -1,6 +1,7 @@
 package org.osflash.asjs.parser {
     
     import org.osflash.asjs.parser.JSRenderer;
+    import org.osflash.asjs.parser.objects.ASPackageStructure;
     
     public class ASParser {
 
@@ -10,8 +11,14 @@ package org.osflash.asjs.parser {
 
         public function ASParser(pegFile:String):void{
             
-            var contents:String = getFileContents(pegFile);
-            _parser = PEG.buildParser(contents);
+            // hack until parser pre-compiling is implemented
+            if(ASPackageRepo.___PEG____PARSER == undefined){
+                var contents:String = getFileContents(pegFile);
+                ASPackageRepo.___PEG____PARSER = PEG.buildParser(contents);
+                ASPackageRepo.__PACK_STRUCTURE__ =  new ASPackageStructure();
+            }
+
+            _parser = ASPackageRepo.___PEG____PARSER;
 
         }
 
@@ -19,15 +26,18 @@ package org.osflash.asjs.parser {
             return _parser.parse(s); 
         }
 
-        public function transmogrify(srcDirectory:String, className:String):String{
+        public function transmogrify(srcDirectory:String, className:String, isMain:boolean = false):String{
             
             var classNamePath:String = className.replace(/\./g, "/") + ".as";
 
             var structure:Object = _parser.parse(getFileContents(srcDirectory + classNamePath));
+            //trace(JSON.stringify(structure));
             var renderer:JSRenderer = new JSRenderer(structure);
 
-            var s:String = renderer.renderAsString() + "\n";
-            s += "new " + className + "();";
+            var s:String = "";
+            if(isMain) s += ASPackageRepo.__PACK_STRUCTURE__.toJsonString() + "\n";
+            s += renderer.renderAsString() + "\n";
+            if(isMain) s += "new " + className + "();";
 
             return s;
         }

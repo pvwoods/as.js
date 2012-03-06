@@ -81,16 +81,21 @@ package org.osflash.asjs {
 
         public function transmogrify(argIndex:uint, args:Array):void{
             
+            ASPackageRepo.ROOT_SRC_DIR = args[argIndex + 1];
+            
             var parser:ASParser = new ASParser("./peg/as3.pegjs");
             var prelude:Prelude = new Prelude();
-            trace(prelude.generatePrelude() + "\n" + parser.transmogrify(args[argIndex + 1], args[argIndex + 2]));
+            trace(prelude.generatePrelude() + "\n" + parser.transmogrify(args[argIndex + 1], args[argIndex + 2], true));
 
         }
 
         public function evaluate(argIndex:uint, args:Array):void{
+            
+            ASPackageRepo.ROOT_SRC_DIR = args[argIndex + 1];
+
             var parser:ASParser = new ASParser("./peg/as3.pegjs");
             var prelude:Prelude = new Prelude();
-            eval(prelude.generatePrelude() + "\n" + parser.transmogrify(args[argIndex + 1], args[argIndex + 2]));
+            eval(prelude.generatePrelude() + "\n" + parser.transmogrify(args[argIndex + 1], args[argIndex + 2], true));
         }
 
         public function runREPL():void{

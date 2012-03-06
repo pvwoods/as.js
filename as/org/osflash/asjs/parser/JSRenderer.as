@@ -1,6 +1,7 @@
 package org.osflash.asjs.parser {
     
     import org.osflash.asjs.parser.objects.ASPackageStructure;
+    import org.osflash.asjs.parser.ASParser;
 
     public class JSRenderer {
 
@@ -13,10 +14,13 @@ package org.osflash.asjs.parser {
         protected var _classScopedVariables:Array = []; // any variable that is declared at the class level
         protected var _classScopedFunctions:Array = []; // any class functions
 
+        protected var _importedClasses:String = "";
+
         public function JSRenderer(structure:Object):void{
             
             _result = translateObjectToJS(structure);
-            _structure = new ASPackageStructure();
+            // hack until statics implemented
+            _structure = ASPackageRepo.__PACK_STRUCTURE__;
             
         } 
 
@@ -35,16 +39,13 @@ package org.osflash.asjs.parser {
                     case "PackageStatement":
                         s += this[getPegFunctionName(a[i].type)](a[i], a);
                         break;
-                    case "ImportStatement":
-                        s += "";
-                        break;
                     case "Block":
                         s+= PEG_PackageBlock(a[i]);
                         break;
                 }
             }
             
-            return s;
+            return _importedClasses + "\n" + s;
 
         }
         
@@ -52,14 +53,30 @@ package org.osflash.asjs.parser {
         protected function PEG_PackageBlock(o:Object, p:Object):String{
 
             var elems:Array = o.statements;
-            
+
             if(elems == null) return "";
+
+            var importMaps:String = "";
 
             var s:String = "";
             
-            for(var i:int = 0; i < elems.length; i++) s += this[getPegFunctionName(elems[i].type)](elems[i], o);
+            for(var i:int = 0; i < elems.length; i++){
+                switch(elems[i].type){
+                    case "ImportStatement":
+                        // currently does not handle circular imports
+                        _importedClasses += new ASParser("").transmogrify(ASPackageRepo.ROOT_SRC_DIR, elems[i].name);
+                        importMaps += "ret." + elems[i].name.split(".").pop() + "= " + elems[i].name + "; ";
+                        break;
+                    default:
+                        s += this[getPegFunctionName(elems[i].type)](elems[i], o);
+                        break;
+                }
+            }
             // hack for the finicky nature of the 0.1 compiler with Strings '};'
-            return s + "; if(ret[CLASS_NAME] !== undefined) ret[CLASS_NAME](arguments); return ret;" + _b64.decode("fTs=");
+            s += ";";
+            s += importMaps;
+            s += "if(ret[CLASS_NAME] !== undefined) ret[CLASS_NAME](arguments); return ret;" + _b64.decode("fTs=");
+            return s;
 
         }
 
@@ -77,9 +94,13 @@ package org.osflash.asjs.parser {
 
         }
 
+        protected function PEG_EmptyStatement(o:Object, p:Object):String {
+            return "";
+        }
+
         protected function PEG_PackageStatement(o:Object, p:Object):String{
-            if(o.name == "") return "var ";
-            _structure.addToPackageStructure(o.name);
+            if(o.name == "" || o.name == undefined) return "var ";
+            ASPackageRepo.__PACK_STRUCTURE__.addToPackageStructure(o.name);
             return o.name + ".";
         }
 
@@ -119,7 +140,7 @@ package org.osflash.asjs.parser {
                 }
                 if(o.arguments.length > 0) s += this[getPegFunctionName(o.arguments[o.arguments.length - 1].type)](o.arguments[o.arguments.length - 1], o);
             }
-            return s + ")" + ((p.type == "Block") ? ";":"");
+            return s + ")" + (needsSemiColon(p) ? ";":"");
         }
 
         protected function PEG_ReturnStatement(o:Object, p:Object):String{
@@ -159,7 +180,7 @@ package org.osflash.asjs.parser {
 
         protected function PEG_Variable(o:Object, p:Object):String{
             // hack for finicky compiler
-            return ((p.type != "PropertyAccess" && isBuiltInFunc(o.name) == false && isClassScoped(o.name)) ? _b64.decode("dGhpcy4="):"") + o.name;
+            return ((isBuiltInFunc(o.name) == false && isClassScoped(o.name)) ? _b64.decode("dGhpcy4="):"") + o.name;
         }
 
         protected function PEG_NumericLiteral(o:Object, p:Object):String{
@@ -184,12 +205,20 @@ package org.osflash.asjs.parser {
             return "this";
         }
 
+        protected function PEG_NewOperator(o:Object, p:Object):String{
+            // hack for 'new this.'
+            var s:String = _b64.decode("bmV3IHRoaXMu") + this[getPegFunctionName(o.cnstruct.type)](o.cnstruct, o) + "(";
+            for(var n:String in o.arguments) s += this[getPegFunctionName(o.arguments[n].type)](o.arguments[n], o) + ",";
+            if(s.charAt(s.length - 1) == ",") s.substring(0, s.length-1);
+            return s + ")" + (p.type == "Block" ? ";":"");
+        }
+
         protected function PEG_AssignmentExpression(o:Object, p:Object):String{
             return this[getPegFunctionName(o.left.type)](o.left, o) + o.operator + this[getPegFunctionName(o.right.type)](o.right, o) + ";";
         }
 
         protected function PEG_UnaryExpression(o:Object, p:Object):String{
-            return o.operator +  this[getPegFunctionName(o.expression.type)](o.expression, o) + ((p.type == "Block") ? ";":"");
+            return o.operator +  this[getPegFunctionName(o.expression.type)](o.expression, o) + (needsSemiColon(p) ? ";":"");
         }
 
         protected function PEG_BinaryExpression(o:Object, p:Object):String{
@@ -197,7 +226,7 @@ package org.osflash.asjs.parser {
         }
 
         protected function PEG_PostfixExpression(o:Object, p:Object):String{
-            return this[getPegFunctionName(o.expression.type)](o.expression, o) + o.operator + ((p.type == "Block") ? ";":"");
+            return this[getPegFunctionName(o.expression.type)](o.expression, o) + o.operator + (needsSemiColon(p) ? ";":"");
         }
 
         protected function PEG_IfStatement(o:Object, p:Object):String{
@@ -243,7 +272,7 @@ package org.osflash.asjs.parser {
         }
                 
         public function renderAsString():String{
-            return _structure.toJsonString() + "\n" + _result;
+            return _result;
         }
 
         protected function isBuiltInFunc(f:String):Boolean {
@@ -269,6 +298,9 @@ package org.osflash.asjs.parser {
                 }
             }
         }
+
+        protected function needsSemiColon(p:Object):Boolean{
+            return ((p.type == "Block") || (p.type == "Function"));
 
     }
 

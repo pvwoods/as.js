@@ -7,7 +7,7 @@ package {
 
         public function Casting(){
             
-            var c:int = add(a + b);
+            var c:int = add(a, b);
 
             trace(c);
 

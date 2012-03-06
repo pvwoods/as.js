@@ -579,7 +579,7 @@ MemberExpression
       / NewToken __ constructor:MemberExpression __ arguments:Arguments {
           return {
             type:        "NewOperator",
-            constructor: constructor,
+            cnstruct: constructor,
             arguments:   arguments
           };
         }
@@ -604,7 +604,7 @@ NewExpression
   / NewToken __ constructor:NewExpression {
       return {
         type:        "NewOperator",
-        constructor: constructor,
+        cnstruct: constructor,
         arguments:   []
       };
     }
