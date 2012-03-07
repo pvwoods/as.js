@@ -130,11 +130,21 @@ package org.osflash.asjs.parser {
             var s:String = o.name + ": function(";
 
             _classScopedFunctions.push(o.name);
+
+            var optionalSetters:String = "";
             
-            s += o.params.join(", ");
+            for(var n:string in o.params){
+                s += o.params[n].head + ",";
+                if(o.params[n].defaultValue != ""){
+                    optionalSetters += o.params[n].head + " = " + o.params[n].head + " || " + o.params[n].defaultValue.value + ";";
+                }
+            }
             
-            s += "){"
-            
+            if(s.charAt(s.length - 1) == ",") s = s.substring(0, s.length - 1);
+
+            s += "){" + optionalSetters;
+
+
             //handle anything within the function
             if(o.elements != null){
                 for(var i:int = 0; i < o.elements.length; i++) s += this[getPegFunctionName(o.elements[i].type)](o.elements[i], o);

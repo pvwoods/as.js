@@ -1549,10 +1549,10 @@ FunctionExpression
     }
 
 FormalParameterList
-  = head:Identifier __ VariableTypeDecleration? tail:(__ "," __ Identifier __ VariableTypeDecleration?)* {
-      var result = [head];
+  = head:Identifier __ VariableTypeDecleration? __ defVal:Initialiser? tail:(__ "," __ Identifier __ VariableTypeDecleration? __ Initialiser? )* {
+      var result = [{head: head, defaultValue: defVal}];
       for (var i = 0; i < tail.length; i++) {
-        result.push(tail[i][3]);
+        result.push({head: tail[i][3], defaultValue: tail[i][7]});
       }
       return result;
     }
