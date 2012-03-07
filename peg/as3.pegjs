@@ -1523,7 +1523,7 @@ DebuggerStatement
 FunctionDeclaration
   = modifier:MethodModifier? __ FunctionToken __ name:Identifier __ 
     "(" __ params:FormalParameterList? __ ")" __
-    varType:VariableTypeDecleration? 
+    varType:VariableTypeDecleration? __
     "{" __ elements:FunctionBody __ "}" {
       return {
         modifier: modifier,
