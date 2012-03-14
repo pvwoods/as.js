@@ -279,6 +279,13 @@ package org.osflash.asjs.parser {
             return s;
         }
 
+        protected function PEG_ConditionalExpression(o:Object, p:Object):String{
+            var s:String = "(" + this[getPegFunctionName(o.condition.type)](o.condition, o) + " ? ";
+            s += "(" + this[getPegFunctionName(o.trueExpression.type)](o.trueExpression, o) + "):(";
+            s += this[getPegFunctionName(o.falseExpression.type)](o.falseExpression, o) + "))";
+            return s;
+        }
+
         protected function PEG_WhileStatement(o:Object, p:Object):String{
             return "while(" + this[getPegFunctionName(o.condition.type)](o.condition, o) + ")" +  this[getPegFunctionName(o.statement.type)](o.statement, o);
         }

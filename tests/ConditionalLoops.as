@@ -45,6 +45,8 @@ package {
                     break;
             }
 
+            trace(!a ? "foo":"bar");
+
 
         }
     }
