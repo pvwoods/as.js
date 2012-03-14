@@ -31,6 +31,12 @@ package org.osflash.asjs.parser {
         public function transmogrify(srcDirectory:String, className:String, isMain:boolean = false):String{
             
             var classNamePath:String = className.replace(/\./g, "/") + ".as";
+            
+            // circular imports hack
+            if(isMain){
+                ASPackageRepo.__CLASSES__SEEN = {};
+                ASPackageRepo.__CLASSES__SEEN[className] = true;
+            }
 
             var structure:Object = _parser.parse(getFileContents(srcDirectory + classNamePath));
             //trace(JSON.stringify(structure));

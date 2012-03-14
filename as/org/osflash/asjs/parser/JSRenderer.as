@@ -69,10 +69,13 @@ package org.osflash.asjs.parser {
             for(var i:int = 0; i < elems.length; i++){
                 switch(elems[i].type){
                     case "ImportStatement":
-                        // currently does not handle circular imports
-                        var parser:ASParser = new ASParser("");
-                        _importedClasses += parser.transmogrify(ASPackageRepo.ROOT_SRC_DIR, elems[i].name);
-                        _classnameToParser[elems[i].name.split(".").pop()] = parser;
+                        // circular imports hack
+                        if(ASPackageRepo.__CLASSES__SEEN[elems[i]] !== true){
+                            var parser:ASParser = new ASParser("");
+                            _importedClasses += parser.transmogrify(ASPackageRepo.ROOT_SRC_DIR, elems[i].name);
+                            _classnameToParser[elems[i].name.split(".").pop()] = parser;
+                            ASPackageRepo.__CLASSES__SEEN[elems[i]] = true;
+                        }
                         importMaps += "ret.CLASS_" + elems[i].name.split(".").pop() + "= " + elems[i].name + "; ";
                         break;
                     default:
@@ -241,6 +244,10 @@ package org.osflash.asjs.parser {
             return "this";
         }
 
+        protected function PEG_NullLiteral(o:Object, p:Object):String{
+            return "null";
+        }
+
         protected function PEG_NewOperator(o:Object, p:Object):String{
             // hack for 'new this.'
             var s:String = _b64.decode("bmV3IHRoaXMu") + "CLASS_" + this[getPegFunctionName(o.cnstruct.type)](o.cnstruct, o) + "(";
@@ -298,6 +305,34 @@ package org.osflash.asjs.parser {
             return s + this[getPegFunctionName(o.statement.type)](o.statement,o);
         }
 
+        protected function PEG_SwitchStatement(o:Object, p:Object):String{
+            var s:String = "switch(" + this[getPegFunctionName(o.expression.type)](o.expression,o) + "){";
+            for(var i:uint = 0; i < o.clauses.length; i++){
+                s+= this[getPegFunctionName(o.clauses[i].type)](o.clauses[i],o);
+            }
+            return s + "}";
+        }
+
+        protected function PEG_CaseClause(o:Object, p:Object):String{
+            var s:String = "case " + this[getPegFunctionName(o.selector.type)](o.selector,o) + ":";
+            for(var i:uint = 0; i < o.statements.length; i++){
+                s+= this[getPegFunctionName(o.statements[i].type)](o.statements[i],o);
+            }
+            return s;
+        }
+
+        protected function PEG_DefaultClause(o:Object, p:Object):String{
+            var s:String = "default:";
+            for(var i:uint = 0; i < o.statements.length; i++){
+                s+= this[getPegFunctionName(o.statements[i].type)](o.statements[i],o);
+            }
+            return s;
+        }
+
+        protected function PEG_BreakStatement(o:Object, p:Object):String{
+            return "break;";
+        }
+
         protected function PEG_RegularExpressionLiteral(o:Object, p:Object):String{
             return "/" + o.body + "/" + o.flags;
         }
@@ -347,7 +382,7 @@ package org.osflash.asjs.parser {
         }
 
         protected function needsSemiColon(p:Object):Boolean{
-            return ((p.type == "Block") || (p.type == "Function"));
+            return ((p.type == "Block") || (p.type == "Function") || (p.type == "CaseClause") || (p.type == "DefaultClause"));
         }
 
         public function getClassScopedVariables():Array {

@@ -27,6 +27,23 @@ package {
             for(var i:int = 0; i < 10; i++){
                 trace("i = " + i);
             }
+            
+            var a:Boolean = false;
+
+            switch(a){
+                case "flse":
+                    trace("a is flse");
+                    break;
+                case true:
+                    trace("a is true");
+                    break;
+                case false:
+                    trace("a is false");
+                    break;
+                default:
+                    trace("what is a?");
+                    break;
+            }
 
 
         }
