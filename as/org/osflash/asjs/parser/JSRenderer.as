@@ -174,17 +174,18 @@ package org.osflash.asjs.parser {
         }
 
         protected function PEG_PropertyAccess(o:Object, p:Object):String{
-            return this[getPegFunctionName(o.base.type)](o.base, o) + "." + o.name;
+            return this[getPegFunctionName(o.base.type)](o.base, o) + ((typeof(o.name) == "string") ? ("." + o.name):("[" + this[getPegFunctionName(o.name.type)](o.name, o) + "]"));
         }
 
         protected function PEG_ClassVariableStatement(o:Object, p:Object):String{
             var s:String = "";
             if(o.declarations != undefined && o.declarations != null){
                 for(var n:String in o.declarations){
-                    s += this[getPegFunctionName(o.declarations[n].type)](o.declarations[n], o);
+                    s += this[getPegFunctionName(o.declarations[n].type)](o.declarations[n], o) + ",";
                 }
-                s = s.replace(/#endDelim#/g, ",");
+                if(s.charAt(s.length - 1) == ",") s = s.substring(0, s.length - 1);
                 s = s.replace(/#eqDelim#/g, ":");
+                s = s.replace(/#null#/g, ": null,");
                 // remove extraneous ; if added (sometimes added by functions) (find a better way to handle this during 0.3 optimization)
                 if(s.charAt(s.length - 2) == ";") s = s.substring(0, s.length - 2) + s.charAt(s.length - 1);
             }
@@ -194,14 +195,13 @@ package org.osflash.asjs.parser {
         protected function PEG_VariableStatement(o:Object, p:Object):String{
             var s:String = "var ";
             for(var n:String in o.declarations) s += this[getPegFunctionName(o.declarations[n].type)](o.declarations[n], o);
-            s = s.replace(/#endDelim#/g, ",");
-            s = s.substring(0, s.length-1) + ";";
+            s = s.replace(/#null#/g, "=null;");
             s = s.replace(/#eqDelim#/g, "=");
-            return s;
+            return s + (needsSemiColon(p) ? ";":"");
         }
 
         protected function PEG_VariableDeclaration(o:Object, p:Object):String{
-            return o.name + (o.value == null ? "#eqDelim#null":"#eqDelim#" + this[getPegFunctionName(o.value.type)](o.value, o)) + "#endDelim#";
+            return o.name + (o.value == null ? "#null#":"#eqDelim#" + this[getPegFunctionName(o.value.type)](o.value, o));
         }
 
         protected function PEG_Variable(o:Object, p:Object):String{
@@ -225,6 +225,16 @@ package org.osflash.asjs.parser {
             var s:String = "[";
             for(var n:String in o.elements) s += this[getPegFunctionName(o.elements[n].type)](o.elements[n], o) + ",";
             return s.substring(0, s.length-1) + "]";
+        }
+
+        protected function PEG_ObjectLiteral(o:Object, p:Object):String{
+            var s:String = "{";
+            for(var n:String in o.properties) s += this[getPegFunctionName(o.properties[n].type)](o.properties[n], o) + ",";
+            return s + "}";
+        }
+
+        protected function PEG_PropertyAssignment(o:Object, p:Object):String {
+            return o.name + ": " + this[getPegFunctionName(o.value.type)](o.value, o);
         }
 
         protected function PEG_This(o:Object, p:Object):String{
@@ -279,6 +289,17 @@ package org.osflash.asjs.parser {
             if(o.test != undefined && o.test != null) s += this[getPegFunctionName(o.test.type)](o.test,o) + ";";
             if(o.counter) s += this[getPegFunctionName(o.counter.type)](o.counter,o) + ")";
             return s + this[getPegFunctionName(o.statement.type)](o.statement,o);
+        }
+
+        protected function PEG_ForInStatement(o:Object, p:Object):String{
+            var s:String = "for(var ";
+            s += this[getPegFunctionName(o.iterator.type)](o.iterator,o) + " in " + this[getPegFunctionName(o.collection.type)](o.collection,o) + ")";
+            s = s.replace(/#null#/g, "");
+            return s + this[getPegFunctionName(o.statement.type)](o.statement,o);
+        }
+
+        protected function PEG_RegularExpressionLiteral(o:Object, p:Object):String{
+            return "/" + o.body + "/" + o.flags;
         }
 
         /**
