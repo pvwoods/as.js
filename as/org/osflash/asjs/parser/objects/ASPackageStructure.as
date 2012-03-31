@@ -22,7 +22,7 @@ package org.osflash.asjs.parser.objects {
         public function toJsonString():String{
             var s:String = "";
             for(var n:String in _structure){
-                s += "var " + n + " = " + JSON.stringify(_structure[n]); + ";";
+                s += "var " + n + " = " + JSON.stringify(_structure[n]) + ";";
             }
             return s;
         }

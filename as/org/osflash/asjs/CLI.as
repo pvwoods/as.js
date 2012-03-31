@@ -43,21 +43,25 @@ package org.osflash.asjs {
         }
 
         public function printCredits(argIndex:uint, args:Array):void{
-
-            trace('\n      ___  _____     ___ _____ ');
-            trace('     / _ \\/  ___|   |_  /  ___|');
-            trace('    / /_\\ \\ `--.      | \\ `--. ');
-            trace('    |  _  |`--. \\     | |`--. \\');
-            trace('    | | | /\\__/ /_/\\__/ /\\__/ /');
-            trace('    \\_| |_|____/(_)____/\____/ ');
-            trace('ActionScript 3 to JavaScript Compiler\n');
+            
+            trace('');
+            trace("  .d8b.  .d8888.       d88b .d8888. ");
+            trace(" d8' `8b 88'  YP       `8P' 88'  YP ");
+            trace(" 88ooo88 `8bo.          88  `8bo.   ");
+            trace(" 88~~~88   `Y8b.        88    `Y8b. ");
+            trace(" 88   88 db   8D db db. 88  db   8D ");
+            trace(" YP   YP `8888Y' VP Y8888P  `8888Y' ");
+            trace('ActionScript 3 to JavaScript Compiler');
+            trace('');
 
         }
 
         public function printHelp(argIndex:uint, args:Array):void{
-            
-            trace("\nUsage -> asjs [<args>]");
-            trace("\nAvailable Commands:");
+
+            trace('');
+            trace("Usage -> asjs [<args>]");
+            trace('');
+            trace("Available Commands:");
             trace("\t-t --transmogrify\t<sourceDirectory> <MainClass>\ttransform AS3 to JS and print");
             trace("\t-e --evaluate\t\t<sourceDirectory> <MainClass>\tevaluate AS3 file");
             trace("\t-p --peg\t\t<sourceDirectory> <MainClass>\tdumps the peg JSON");
@@ -85,7 +89,8 @@ package org.osflash.asjs {
             
             var parser:ASParser = new ASParser("./peg/as3.pegjs");
             var prelude:Prelude = new Prelude();
-            trace(prelude.generatePrelude() + "\n" + parser.transmogrify(args[argIndex + 1], args[argIndex + 2], true));
+            trace(prelude.generatePrelude());
+            trace(parser.transmogrify(args[argIndex + 1], args[argIndex + 2], true));
 
         }
 
@@ -99,7 +104,9 @@ package org.osflash.asjs {
         }
 
         public function runREPL():void{
-            trace("\n + Starting AS.JS REPL + \n");
+            trace('');
+            trace("+ Starting AS.JS REPL +");
+            trace('');
             var stdin = process.openStdin();
             process.stdout.write("> ");
             var parser:ASParser = new ASParser("./peg/as3.pegjs");
@@ -107,7 +114,8 @@ package org.osflash.asjs {
                 var s:String = chunk.toString();
                 s = s.substring(0, s.length - 1);
                 if(s == "exit()" || s == "exit" || s == "exit();" || s == "exit;") process.exit();
-                console.log(parser.evaluate(s) + "\n");
+                console.log(parser.evaluate(s));
+                trace('');
                 process.stdout.write("> ");
             });
         }
