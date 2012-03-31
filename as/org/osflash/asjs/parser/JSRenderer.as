@@ -70,11 +70,11 @@ package org.osflash.asjs.parser {
                 switch(elems[i].type){
                     case "ImportStatement":
                         // circular imports hack
-                        if(ASPackageRepo.__CLASSES__SEEN[elems[i]] !== true){
+                        if(ASPackageRepo.__CLASSES__SEEN[elems[i].name] !== true){
+                            ASPackageRepo.__CLASSES__SEEN[elems[i].name] = true;
                             var parser:ASParser = new ASParser("");
                             _importedClasses += parser.transmogrify(ASPackageRepo.ROOT_SRC_DIR, elems[i].name);
-                            _classnameToParser[elems[i].name.split(".").pop()] = parser;
-                            ASPackageRepo.__CLASSES__SEEN[elems[i]] = true;
+                            _classnameToParser[elems[i].name.split(".").pop()] = parser; 
                         }
                         importMaps += "ret.CLASS_" + elems[i].name.split(".").pop() + "= " + elems[i].name + "; ";
                         break;
