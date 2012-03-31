@@ -227,7 +227,8 @@ package org.osflash.asjs.parser {
         protected function PEG_ArrayLiteral(o:Object, p:Object):String{
             var s:String = "[";
             for(var n:String in o.elements) s += this[getPegFunctionName(o.elements[n].type)](o.elements[n], o) + ",";
-            return s.substring(0, s.length-1) + "]";
+            if(s.charAt(s.length - 1) == ',') s = s.substring(0, s.length-1);
+            return s + "]";
         }
 
         protected function PEG_ObjectLiteral(o:Object, p:Object):String{
