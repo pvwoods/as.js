@@ -3,8 +3,7 @@
   "description": "Actionscript to Javascript compiler",
   "author": "Philip Woods",
   "dependencies": {
-      "pegjs":"0.6.2",
-      "b64":"1.0.1"
+      "pegjs":"0.6.2"
   },
   "version": "0.0.4",
   "main": "app.js",

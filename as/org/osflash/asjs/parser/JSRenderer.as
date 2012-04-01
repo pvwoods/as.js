@@ -11,7 +11,6 @@ package org.osflash.asjs.parser {
         
         protected var _result:String;
         protected var _structure:ASPackageStructure;
-        protected var _b64:b64 = require('b64');
 
         protected var _classScopedVariables:Array = []; // any variable that is declared at the class level
         protected var _classScopedFunctions:Array = []; // any class functions
@@ -86,10 +85,9 @@ package org.osflash.asjs.parser {
             }
             // hack for the finicky nature of the 0.1 compiler with Strings '};'
             s += ";";
-            // ###IMPORT_MAPS###{ and {
-            s = s.replace(_b64.decode("IyMjSU1QT1JUX01BUFMjIyN7"), _b64.decode("ew==") + importMaps);
+            s = s.replace("###IMPORT_MAPS###{", "{" + importMaps);
             if(_extensionClass != "") s += "ASJS_extendClass(ret, new ret.CLASS_" + _extensionClass + "(true));";
-            s += "if(ret[CLASS_NAME] !== undefined && noInvoke != true) ret[CLASS_NAME].apply(ret, arguments); return ret;" + _b64.decode("fTs=");
+            s += "if(ret[CLASS_NAME] !== undefined && noInvoke != true) ret[CLASS_NAME].apply(ret, arguments); return ret;};";
             return s;
 
         }
@@ -119,8 +117,7 @@ package org.osflash.asjs.parser {
         }
 
         protected function PEG_ClassStatement(o:Object, p:Object):String{
-            // hack for the finicky nature of the 0.1 compiler with Strings '= function(noInvoke){'
-            var s:String = o.name + " " + _b64.decode("PSBmdW5jdGlvbihub0ludm9rZSl7");
+            var s:String = o.name + " = function(noInvoke){"
             s += "var CLASS_NAME = '" + o.name + "'; var ret = ###IMPORT_MAPS###";
             _extensionClass = o.extension;
             if(_extensionClass != ""){
@@ -161,8 +158,7 @@ package org.osflash.asjs.parser {
         protected function PEG_FunctionCall(o:Object, p:Object):String{
 
             var s:String = this[getPegFunctionName(o.name.type)](o.name, o);
-            // hack to override super function call to 'this.' + _extensionClass
-            if(s == "super") s = _b64.decode("dGhpcy4=") + _extensionClass;
+            if(s == "super") s = "this." + _extensionClass;
             s += "(";
             if(o.arguments != null){
                 
@@ -211,7 +207,7 @@ package org.osflash.asjs.parser {
 
         protected function PEG_Variable(o:Object, p:Object):String{
             // hack for finicky compiler
-            return ((isBuiltInFunc(o.name) == false && isClassScoped(o.name)) ? _b64.decode("dGhpcy4="):"") + o.name;
+            return ((isBuiltInFunc(o.name) == false && isClassScoped(o.name)) ? "this.":"") + o.name;
         }
 
         protected function PEG_NumericLiteral(o:Object, p:Object):String{
@@ -252,8 +248,7 @@ package org.osflash.asjs.parser {
         }
 
         protected function PEG_NewOperator(o:Object, p:Object):String{
-            // hack for 'new this.'
-            var s:String = _b64.decode("bmV3IHRoaXMu") + "CLASS_" + this[getPegFunctionName(o.cnstruct.type)](o.cnstruct, o) + "(";
+            var s:String = "new this.CLASS_" + this[getPegFunctionName(o.cnstruct.type)](o.cnstruct, o) + "(";
             for(var n:String in o.arguments) s += this[getPegFunctionName(o.arguments[n].type)](o.arguments[n], o) + ",";
             if(s.charAt(s.length - 1) == ",") s = s.substring(0, s.length-1);
             return s + ")" + (p.type == "Block" ? ";":"");
