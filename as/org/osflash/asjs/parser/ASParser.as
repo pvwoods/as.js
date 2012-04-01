@@ -14,13 +14,12 @@ package org.osflash.asjs.parser {
         public function ASParser(pegFile:String):void{
             
             // hack until parser pre-compiling is implemented
-            if(ASPackageRepo.___PEG____PARSER == undefined){
+            if(___PEG____PARSER == null){
                 var contents:String = getFileContents(pegFile);
-                ASPackageRepo.___PEG____PARSER = PEG.buildParser(contents);
-                ASPackageRepo.__PACK_STRUCTURE__ =  new ASPackageStructure();
+                ___PEG____PARSER = PEG.buildParser(contents); 
             }
 
-            _parser = ASPackageRepo.___PEG____PARSER;
+            _parser = ___PEG____PARSER;
 
         }
 
@@ -36,6 +35,7 @@ package org.osflash.asjs.parser {
             if(isMain){
                 ASPackageRepo.__CLASSES__SEEN = {};
                 ASPackageRepo.__CLASSES__SEEN[className] = true;
+                ASPackageRepo.__PACK_STRUCTURE__ =  new ASPackageStructure();
             }
 
             var structure:Object = _parser.parse(getFileContents(srcDirectory + classNamePath));
