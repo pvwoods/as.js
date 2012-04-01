@@ -1,2 +1,2 @@
 #!/bin/sh
-asjs -c as/ org.osflash.asjs.CLI > cli.js
+asjs -t as/ org.osflash.asjs.CLI > cli.js

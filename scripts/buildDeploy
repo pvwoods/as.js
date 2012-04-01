@@ -3,7 +3,7 @@ mv js/as.js js/as.js.old
 pegjs peg/as3.pegjs parser.js
 sed 's/module.exports/var ___PEG____PARSER/g' parser.js > as3Parser.js
 rm parser.js
-node js/as.js.old -t as/ org.osflash.asjs.CLI > compiler.js
+asjs -t as/ org.osflash.asjs.CLI > compiler.js
 cat scripts/scriptPreamble.template as3Parser.js compiler.js > as.js
 rm as3Parser.js compiler.js
 mv as.js js/
