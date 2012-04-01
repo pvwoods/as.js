@@ -254,7 +254,10 @@ HexDigit
 
 StringLiteral "string"
   = parts:('"' DoubleStringCharacters? '"' / "'" SingleStringCharacters? "'") {
-      return parts[1];
+      return {
+          quoteType: parts[0],
+          contents: parts[1]
+      };
     }
 
 DoubleStringCharacters

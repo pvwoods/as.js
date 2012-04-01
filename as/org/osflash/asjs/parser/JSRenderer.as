@@ -223,7 +223,7 @@ package org.osflash.asjs.parser {
         }
 
         protected function PEG_StringLiteral(o:Object, p:Object):String{
-            return "\"" + o.value + "\"";
+            return o.value.quoteType + o.value.contents + o.value.quoteType;
         }
 
         protected function PEG_ArrayLiteral(o:Object, p:Object):String{
