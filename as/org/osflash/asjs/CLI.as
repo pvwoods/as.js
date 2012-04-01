@@ -8,11 +8,14 @@ package org.osflash.asjs {
 
     public class CLI {
 
-        private var _configData:ConfigData = new ConfigData(); // In later versions, Config shouldn't need to be instantiated
-        private var _commands:Dictionary = new Dictionary();
+        private var _configData:ConfigData; // In later versions, Config shouldn't need to be instantiated
+        private var _commands:Dictionary;
         private var _fs:fs = require('fs');
 
         public function CLI() {
+
+            _configData = new ConfigData();
+            _commands = new Dictionary();
             
             _commands["-h"] = printHelp;
             _commands["--help"] = printHelp;
@@ -100,7 +103,7 @@ package org.osflash.asjs {
 
             var parser:ASParser = new ASParser("./peg/as3.pegjs");
             var prelude:Prelude = new Prelude();
-            eval(prelude.generatePrelude() + "\n" + parser.transmogrify(args[argIndex + 1], args[argIndex + 2], true));
+            eval(prelude.generatePrelude() + parser.transmogrify(args[argIndex + 1], args[argIndex + 2], true));
         }
 
         public function runREPL():void{
