@@ -1201,7 +1201,7 @@ ImportStatement
 
 
 ClassVariableStatement
-  = modifier:MethodModifier isStatic:StaticToken? __ accessScope:(VarToken /ConstToken) __ declarations:VariableDeclarationList EOS {
+  = modifier:MethodModifier __ isStatic:StaticToken? __ accessScope:(VarToken /ConstToken) __ declarations:VariableDeclarationList EOS {
       return {
         type:         "ClassVariableStatement",
         modifier:     modifier,

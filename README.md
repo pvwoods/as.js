@@ -28,3 +28,12 @@ to make a deployment build (pre-compiles the peg parser)
     0.0.5 : fix a number of hacks present in the 0.0.4 compiler (base64 encoding, lack of use of statics and consts, general structural bits)
     0.0.6 : to be determined... though I imagine we could use some serious unit tests up in this joint
 
+
+###Running list of caveats
+
+* No Support for getters and setters
+* No Support for interafaces
+* Consts are actually vars
+* access modifiers are currently not enforcable
+
+There are certainly a multitude more

@@ -184,11 +184,11 @@ package org.osflash.asjs.parser {
                 for(var n:String in o.declarations){
                     s += this[getPegFunctionName(o.declarations[n].type)](o.declarations[n], o) + ",";
                 }
-                //if(s.charAt(s.length - 1) == ",") s = s.substring(0, s.length - 1);
                 s = s.replace(/#eqDelim#/g, ":");
                 s = s.replace(/#null#/g, ": null");
-                // remove extraneous ; if added (sometimes added by functions) (find a better way to handle this during 0.3 optimization)
-                if(s.charAt(s.length - 2) == ";") s = s.substring(0, s.length - 2) + s.charAt(s.length - 1);
+                if(o.isStatic == true ){
+                    // handle static variable
+                }
             }
             return s;
         }
