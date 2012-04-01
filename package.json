@@ -6,7 +6,7 @@
       "pegjs":"0.6.2",
       "b64":"1.0.1"
   },
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "app.js",
   "engine": ">=0.3",
   "bin" : { "asjs" : "./js/as.js" }
