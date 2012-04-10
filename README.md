@@ -29,10 +29,12 @@ to make a deployment build (pre-compiles the peg parser)
     0.0.6 : to be determined... though I imagine we could use some serious unit tests up in this joint
 
 
-###Running list of caveats
+##Running list of caveats
 
 * No Support for getters and setters
 * No Support for interafaces
+* No Support for wild card imports
+* Argument splats are not supported
 * Consts are actually vars
 * access modifiers are currently not enforcable
 
