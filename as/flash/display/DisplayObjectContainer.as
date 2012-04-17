@@ -59,7 +59,12 @@ package flash.display {
 
         /** Returns the child display object that exists with the specified name. */
         public function getChildByName(name:String):DisplayObject{
-            //
+            for(var i:int = 0; i < _displayList.length; i++){
+                if(_displayList[i].name === name){
+                    return _displayList[i];
+                }
+            }
+            return null;
         }
 
         /** Returns the index position of a child DisplayObject instance. */
