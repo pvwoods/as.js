@@ -23,7 +23,11 @@ package flash.events {
 
         // Duplicates an instance of an Event subclass.
         public function clone():Event{
-            //
+            var e:Event = new Event(type, bubbles, cancelable);
+            e.target = target;
+            e.currentTarget = currentTarget;
+            e.eventPhase = eventPhase;
+            return e;
         }
         
         // TODO :: missing the arguments splat
