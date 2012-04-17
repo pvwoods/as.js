@@ -28,7 +28,7 @@ package flash.events {
         public function removeEventListener(type:String, listener:Function, useCapture:Boolean = false):void {
             if(_events[type] !== undefined){
                 var index:uint = _events[type].indexOf(listener);
-                if(index != -1) _events[type] = _events[type].splice(index, 1);
+                if(index != -1) _events[type].splice(index, 1);
             }
         }
 
