@@ -272,8 +272,9 @@ package org.osflash.asjs.parser {
 
         protected function PEG_IfStatement(o:Object, p:Object):String{
             var s:String = "if(" + this[getPegFunctionName(o.condition.type)](o.condition, o);
-            s += "){" + this[getPegFunctionName(o.ifStatement.type)](o.ifStatement, o) + "}";
-            if(o.elseStatement != null) s += "else{ " + this[getPegFunctionName(o.elseStatement.type)](o.elseStatement, o) + "}";
+            s += ") " + this[getPegFunctionName(o.ifStatement.type)](o.ifStatement, o);
+            if(o.ifStatement.type != "Block") s += ";";
+            if(o.elseStatement != null) s += "else " + this[getPegFunctionName(o.elseStatement.type)](o.elseStatement, o);
             return s;
         }
 

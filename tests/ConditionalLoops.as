@@ -10,6 +10,8 @@ package {
 
             if(!a){
                 trace("this should not be traced");
+            } else {
+                trace("BOOOOOO!");
             }
 
             var b:int = 0;
