@@ -92,7 +92,7 @@ package flash.display {
         /** Changes the  position of an existing child in the display object container. */
         public function setChildIndex(child:DisplayObject, index:int):void{
             var newIndex:int = _displayList.indexOf(child);
-            if(newIndex != -1){
+            if(newIndex != -1) {
                var temp:DisplayObject = _displayList.splice(newIndex, 1);
                _displayList.splice(index, 0, temp);
             }

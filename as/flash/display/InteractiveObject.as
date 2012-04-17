@@ -1,4 +1,4 @@
-package flash.display{
+package flash.display {
     /** The InteractiveObject class is the abstract base class for all display objects with which the user can interact, using the mouse and keyboard. You cannot instantiate the InteractiveObject class directly. A call to the new InteractiveObject() constructor throws an ArgumentError exception.  The InteractiveObject class itself does not include any APIs for rendering content onscreen. For that reason, if you want create a custom subclass of the InteractiveObject class, you will want to extend one of its subclasses that do have APIs for rendering content onscreen, such as the Sprite, SimpleButton, TextField, or MovieClip class. */
 
     import flash.display.DisplayObject;
