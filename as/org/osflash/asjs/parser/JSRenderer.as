@@ -342,6 +342,10 @@ package org.osflash.asjs.parser {
             return "/" + o.body + "/" + o.flags;
         }
 
+        protected function PEG_ThrowStatement(o:Object, p:Object):String{
+            return "throw " + this[getPegFunctionName(o.exception.type)](o.exception,o);
+        }
+
         /**
          * Helper functions
          **/

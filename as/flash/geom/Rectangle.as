@@ -39,7 +39,7 @@ package flash.geom {
         public var y:Number;
 
         /** Creates a new Rectangle object with the top-left corner specified by the x and y parameters and with the specified width and height parameters. */
-        public function Rectangle(x:Number= 0, y:Number= 0, width:Number= 0, height:Number= 0){
+        public function Rectangle(x:Number= 0, y:Number= 0, width:Number= 0, height:Number= 0):void{
             //
         }
 
@@ -59,7 +59,9 @@ package flash.geom {
         }
 
         /** Determines whether the Rectangle object specified by the rect parameter is contained within this Rectangle object. */
-        public function containsRect(rect:Rectangle):Boolean;
+        public function containsRect(rect:Rectangle):Boolean{
+            //
+        }
 
         /** Determines whether the object specified in the toCompare parameter is equal to this Rectangle object. */
         public function equals(toCompare:Rectangle):Boolean{

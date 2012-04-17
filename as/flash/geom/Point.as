@@ -1,7 +1,7 @@
 package flash.geom {
     /** The Point object represents a location in a two-dimensional coordinate system, where x represents the horizontal axis and y represents the vertical axis. The following code creates a point at (0,0): */
-    public class Point extends  Object
-    {
+    public class Point {
+
         /** [read-only] The length of the line segment from (0,0) to this point. */
         public var length:Number;
 
