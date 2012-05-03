@@ -15,12 +15,15 @@ package org.osflash.asjs.parser {
         protected var _classScopedVariables:Array = []; // any variable that is declared at the class level
         protected var _classScopedFunctions:Array = []; // any class functions
 
-        protected var _staticVariables:String = "";
+        protected var _staticVariables:String = "";     // the rendered code for the static variables
+        protected var _staticVariableList:Array = [];   // a lookup to check if a given variable is static
 
         protected var _importedClasses:String = "";
         protected var _extensionClass:String = "";
         protected var _currentClass:String = "";
+        protected var _package:String = "";
         protected var _classnameToParser:Dictionary;
+        protected var _importedClassNames:Array = [];
 
         public function JSRenderer(structure:Object):void{
 
@@ -79,7 +82,8 @@ package org.osflash.asjs.parser {
                             _importedClasses += parser.transmogrify(ASPackageRepo.ROOT_SRC_DIR, elems[i].name);
                             _classnameToParser[elems[i].name.split(".").pop()] = parser; 
                         }
-                        importMaps += "CLASS_" + elems[i].name.split(".").pop() + ": " + elems[i].name + ", ";
+                        _importedClassNames.push("CLASS_" + elems[i].name.split(".").pop());
+                        importMaps += _importedClassNames[_importedClassNames.length - 1] + ": " + elems[i].name + ", ";
                         break;
                     default:
                         s += this[getPegFunctionName(elems[i].type)](elems[i], o);
@@ -116,6 +120,7 @@ package org.osflash.asjs.parser {
 
         protected function PEG_PackageStatement(o:Object, p:Object):String{
             if(o.name == "" || o.name == undefined) return "var ";
+            _package = o.name;
             ASPackageRepo.__PACK_STRUCTURE__.addToPackageStructure(o.name);
             return o.name + ".";
         }
@@ -189,12 +194,13 @@ package org.osflash.asjs.parser {
             if(o.declarations != undefined && o.declarations != null){
                 for(var n:String in o.declarations){
                     s += this[getPegFunctionName(o.declarations[n].type)](o.declarations[n], o) + ",";
+                    if(st) _staticVariableList.push(o.declarations[n].name);
                 }
                 s = s.replace(/#eqDelim#/g, st ? "=":":");
                 s = s.replace(/#null#/g, (st ? "=":":") + " null");
                 if(st){
                     // handle static variable
-                    _staticVariables += _currentClass + "." + s.substring(0, s.length - 1) + ";";
+                    _staticVariables += _package + (_package == "" ? "":".") + _currentClass + "." + s.substring(0, s.length - 1) + ";";
                     return "";
                 }
             }
@@ -214,8 +220,11 @@ package org.osflash.asjs.parser {
         }
 
         protected function PEG_Variable(o:Object, p:Object):String{
-            // hack for finicky compiler
-            return ((isBuiltInFunc(o.name) == false && isClassScoped(o.name)) ? "this.":"") + o.name;
+            if(o.name == _currentClass) return _package + (_package == "" ? "":".") + o.name;
+            if(isBuiltInFunc(o.name) == false && isClassScoped(o.name)){
+                    return "this." + o.name;
+            } 
+            return (_importedClassNames.indexOf("CLASS_" + o.name) > -1 ? "this.CLASS_":"") + o.name;
         }
 
         protected function PEG_NumericLiteral(o:Object, p:Object):String{
@@ -256,7 +265,7 @@ package org.osflash.asjs.parser {
         }
 
         protected function PEG_NewOperator(o:Object, p:Object):String{
-            var s:String = "new this.CLASS_" + this[getPegFunctionName(o.cnstruct.type)](o.cnstruct, o) + "(";
+            var s:String = "new " + this[getPegFunctionName(o.cnstruct.type)](o.cnstruct, o) + "(";
             for(var n:String in o.arguments) s += this[getPegFunctionName(o.arguments[n].type)](o.arguments[n], o) + ",";
             if(s.charAt(s.length - 1) == ",") s = s.substring(0, s.length-1);
             return s + ")" + (p.type == "Block" ? ";":"");
@@ -378,7 +387,6 @@ package org.osflash.asjs.parser {
         }
 
         protected function isClassScoped(f:String):Boolean {
-            if(f == _currentClass) return false;
             return (_classScopedFunctions.indexOf(f) >= 0 || _classScopedVariables.indexOf(f) >= 0) && f != _currentClass;
         }
 
@@ -408,6 +416,10 @@ package org.osflash.asjs.parser {
 
         public function getClassScopedFunctions():Array {
             return _classScopedFunctions;
+        }
+
+        public function variableIsStatic(n:String):Boolean {
+            return _staticVariableList.indexOf(n) > -1;
         }
 
     }

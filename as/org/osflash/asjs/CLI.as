@@ -8,13 +8,11 @@ package org.osflash.asjs {
 
     public class CLI {
 
-        private var _configData:ConfigData; // In later versions, Config shouldn't need to be instantiated
         private var _commands:Dictionary;
         private var _fs:fs = require('fs');
 
         public function CLI() {
 
-            _configData = new ConfigData();
             _commands = new Dictionary();
             
             _commands["-h"] = printHelp;
@@ -77,7 +75,7 @@ package org.osflash.asjs {
 
         public function printVersion(argIndex:uint, args:Array):void{
 
-            trace("v" + _configData.VERSION_NUMBER);
+            trace("v" + ConfigData.VERSION_NUMBER);
 
         }
 

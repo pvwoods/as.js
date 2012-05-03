@@ -9,7 +9,7 @@ package org.osflash.asjs {
 
         // eventually everything in here will be static consts
 
-        public var VERSION_NUMBER:String = "0.0.4";
+        public static var VERSION_NUMBER:String = "0.0.4";
 
     }
 
