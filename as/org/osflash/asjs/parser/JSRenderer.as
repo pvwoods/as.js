@@ -15,8 +15,11 @@ package org.osflash.asjs.parser {
         protected var _classScopedVariables:Array = []; // any variable that is declared at the class level
         protected var _classScopedFunctions:Array = []; // any class functions
 
+        protected var _staticVariables:String = "";
+
         protected var _importedClasses:String = "";
         protected var _extensionClass:String = "";
+        protected var _currentClass:String = "";
         protected var _classnameToParser:Dictionary;
 
         public function JSRenderer(structure:Object):void{
@@ -88,6 +91,7 @@ package org.osflash.asjs.parser {
             s = s.replace("###IMPORT_MAPS###{", "{" + importMaps);
             if(_extensionClass != "") s += "ASJS_extendClass(ret, new ret.CLASS_" + _extensionClass + "(true));";
             s += "if(ret[CLASS_NAME] !== undefined && noInvoke != true) ret[CLASS_NAME].apply(ret, arguments); return ret;};";
+            s += _staticVariables;
             return s;
 
         }
@@ -120,6 +124,7 @@ package org.osflash.asjs.parser {
             var s:String = o.name + " = function(noInvoke){"
             s += "var CLASS_NAME = '" + o.name + "'; var ret = ###IMPORT_MAPS###";
             _extensionClass = o.extension;
+            _currentClass = o.name;
             if(_extensionClass != ""){
                 _classScopedVariables = _classScopedVariables.concat(_classnameToParser[_extensionClass].renderer.getClassScopedVariables());
                 _classScopedFunctions = _classScopedFunctions.concat(_classnameToParser[_extensionClass].renderer.getClassScopedFunctions());
@@ -180,14 +185,17 @@ package org.osflash.asjs.parser {
 
         protected function PEG_ClassVariableStatement(o:Object, p:Object):String{
             var s:String = "";
+            var st:Boolean = o.isStatic == true ? true:false;
             if(o.declarations != undefined && o.declarations != null){
                 for(var n:String in o.declarations){
                     s += this[getPegFunctionName(o.declarations[n].type)](o.declarations[n], o) + ",";
                 }
-                s = s.replace(/#eqDelim#/g, ":");
-                s = s.replace(/#null#/g, ": null");
-                if(o.isStatic == true ){
+                s = s.replace(/#eqDelim#/g, st ? "=":":");
+                s = s.replace(/#null#/g, (st ? "=":":") + " null");
+                if(st){
                     // handle static variable
+                    _staticVariables += _currentClass + "." + s.substring(0, s.length - 1) + ";";
+                    return "";
                 }
             }
             return s;
@@ -358,8 +366,6 @@ package org.osflash.asjs.parser {
         protected function translateObjectToJS(o:Object):String{
             extractClassScopedIdentifiers(o);
             var s:String = this[getPegFunctionName(o.type)](o.elements, o);
-            // this is an ugly hack until I determine a good way to place semicolons
-            s = s.replace(/;;/g, ";");
             return s;
         }
                 
@@ -372,7 +378,8 @@ package org.osflash.asjs.parser {
         }
 
         protected function isClassScoped(f:String):Boolean {
-            return (_classScopedFunctions.indexOf(f) >= 0 || _classScopedVariables.indexOf(f) >= 0);
+            if(f == _currentClass) return false;
+            return (_classScopedFunctions.indexOf(f) >= 0 || _classScopedVariables.indexOf(f) >= 0) && f != _currentClass;
         }
 
         protected function extractClassScopedIdentifiers(o:Object){

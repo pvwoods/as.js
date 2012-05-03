@@ -1,2 +1,4 @@
 #!/bin/sh
-asjs -t as/ org.osflash.asjs.CLI > cli.js
+asjs -t as/ org.osflash.asjs.CLI > c.js
+beautifier ./c.js > cli.js
+rm c.js

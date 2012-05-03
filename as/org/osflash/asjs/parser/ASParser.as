@@ -44,7 +44,7 @@ package org.osflash.asjs.parser {
 
             var s:String = "";
             if(isMain) s += ASPackageRepo.__PACK_STRUCTURE__.toJsonString();
-            s += renderer.renderAsString() + ";";
+            s += renderer.renderAsString();
             if(isMain) s += "new " + className + "();";
 
             return s;

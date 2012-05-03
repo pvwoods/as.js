@@ -9,7 +9,7 @@ package {
             
             trace("a contains " + a);
 
-            trace("b contains: " + b);
+            trace("b contains: " + StaticConst.b);
 
         }
 

@@ -6,7 +6,7 @@ package flash.display {
     import flash.display.DisplayObject;
     import flash.geom.Point;
     
-    public class DisplayObjectContainer extends  InteractiveObject {
+    public class DisplayObjectContainer extends InteractiveObject {
     
         /** Determines whether or not the children of the object are mouse enabled. */
         public var mouseChildren:Boolean;

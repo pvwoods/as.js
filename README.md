@@ -11,6 +11,8 @@ or
     ./scripts/compile
     node cli.js --help
 
+( you will need to install node-beautifier ) [https://github.com/rickeyski/node-beautifier]
+
 to make a deployment build (pre-compiles the peg parser)
 
     scripts/buildDeploy
