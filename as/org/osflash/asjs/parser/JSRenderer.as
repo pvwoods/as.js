@@ -31,7 +31,7 @@ package org.osflash.asjs.parser {
             
             _result = translateObjectToJS(structure);
             // hack until statics implemented
-            _structure = ASPackageRepo.__PACK_STRUCTURE__;
+            _structure = ASParser.PACKAGE_STRUCTURE;
             
         } 
 
@@ -76,10 +76,10 @@ package org.osflash.asjs.parser {
                 switch(elems[i].type){
                     case "ImportStatement":
                         // circular imports hack
-                        if(ASPackageRepo.__CLASSES__SEEN[elems[i].name] !== true){
-                            ASPackageRepo.__CLASSES__SEEN[elems[i].name] = true;
+                        if(ASParser.CLASSES_SEEN[elems[i].name] !== true){
+                            ASParser.CLASSES_SEEN[elems[i].name] = true;
                             var parser:ASParser = new ASParser("");
-                            _importedClasses += parser.transmogrify(ASPackageRepo.ROOT_SRC_DIR, elems[i].name);
+                            _importedClasses += parser.transmogrify(ASParser.ROOT_SRC_DIR, elems[i].name);
                             _classnameToParser[elems[i].name.split(".").pop()] = parser; 
                         }
                         _importedClassNames.push("CLASS_" + elems[i].name.split(".").pop());
@@ -121,7 +121,7 @@ package org.osflash.asjs.parser {
         protected function PEG_PackageStatement(o:Object, p:Object):String{
             if(o.name == "" || o.name == undefined) return "var ";
             _package = o.name;
-            ASPackageRepo.__PACK_STRUCTURE__.addToPackageStructure(o.name);
+            ASParser.PACKAGE_STRUCTURE.addToPackageStructure(o.name);
             return o.name + ".";
         }
 

@@ -86,7 +86,7 @@ package org.osflash.asjs {
 
         public function transmogrify(argIndex:uint, args:Array):void{
             
-            ASPackageRepo.ROOT_SRC_DIR = args[argIndex + 1];
+            ASParser.ROOT_SRC_DIR = args[argIndex + 1];
             
             var parser:ASParser = new ASParser("./peg/as3.pegjs");
             var prelude:Prelude = new Prelude();
@@ -97,7 +97,7 @@ package org.osflash.asjs {
 
         public function evaluate(argIndex:uint, args:Array):void{
             
-            ASPackageRepo.ROOT_SRC_DIR = args[argIndex + 1];
+            ASParser.ROOT_SRC_DIR = args[argIndex + 1];
 
             var parser:ASParser = new ASParser("./peg/as3.pegjs");
             var prelude:Prelude = new Prelude();

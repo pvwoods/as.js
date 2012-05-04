@@ -5,6 +5,10 @@ package org.osflash.asjs.parser {
     
     public class ASParser {
 
+        public static var CLASSES_SEEN:Array = [];
+        public static var PACKAGE_STRUCTURE:ASPackageStructure;
+        public static var ROOT_SRC_DIR:String = "";
+
         protected var PEG:PegJS = require("pegjs");
         protected var FS:fs = require("fs");
         protected var _parser:PegParser;
@@ -13,7 +17,7 @@ package org.osflash.asjs.parser {
 
         public function ASParser(pegFile:String):void{
             
-            // hack until parser pre-compiling is implemented
+            // fall back for when there is no pre-compiled PegParser
             if(___PEG____PARSER == null){
                 var contents:String = getFileContents(pegFile);
                 ___PEG____PARSER = PEG.buildParser(contents); 
@@ -33,9 +37,9 @@ package org.osflash.asjs.parser {
 
             // circular imports hack
             if(isMain){
-                ASPackageRepo.__CLASSES__SEEN = {};
-                ASPackageRepo.__CLASSES__SEEN[className] = true;
-                ASPackageRepo.__PACK_STRUCTURE__ =  new ASPackageStructure();
+                ASParser.CLASSES_SEEN = {};
+                ASParser.CLASSES_SEEN[className] = true;
+                ASParser.PACKAGE_STRUCTURE =  new ASPackageStructure();
             }
 
             var structure:Object = _parser.parse(getFileContents(srcDirectory + classNamePath));
@@ -43,7 +47,7 @@ package org.osflash.asjs.parser {
             renderer = new JSRenderer(structure);
 
             var s:String = "";
-            if(isMain) s += ASPackageRepo.__PACK_STRUCTURE__.toJsonString();
+            if(isMain) s += ASParser.PACKAGE_STRUCTURE.toJsonString();
             s += renderer.renderAsString();
             if(isMain) s += "new " + className + "();";
 
