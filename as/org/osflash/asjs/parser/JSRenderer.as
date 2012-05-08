@@ -30,7 +30,7 @@ package org.osflash.asjs.parser {
             _classnameToParser = new Dictionary();
             
             _result = translateObjectToJS(structure);
-            // hack until statics implemented
+            
             _structure = ASParser.PACKAGE_STRUCTURE;
             
         } 
@@ -75,7 +75,7 @@ package org.osflash.asjs.parser {
             for(var i:int = 0; i < elems.length; i++){
                 switch(elems[i].type){
                     case "ImportStatement":
-                        // circular imports hack
+                        // circular imports check
                         if(ASParser.CLASSES_SEEN[elems[i].name] !== true){
                             ASParser.CLASSES_SEEN[elems[i].name] = true;
                             var parser:ASParser = new ASParser("");
@@ -90,8 +90,6 @@ package org.osflash.asjs.parser {
                         break;
                 }
             }
-            // hack for the finicky nature of the 0.1 compiler with Strings '};'
-            s += ";";
             s = s.replace("###IMPORT_MAPS###{", "{" + importMaps);
             if(_extensionClass != "") s += "ASJS_extendClass(ret, new ret.CLASS_" + _extensionClass + "(true));";
             s += "if(ret[CLASS_NAME] !== undefined && noInvoke != true) ret[CLASS_NAME].apply(ret, arguments); return ret;};";

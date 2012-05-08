@@ -35,7 +35,7 @@ package org.osflash.asjs.parser {
             
             var classNamePath:String = className.replace(/\./g, "/") + ".as";
 
-            // circular imports hack
+            // circular imports check
             if(isMain){
                 ASParser.CLASSES_SEEN = {};
                 ASParser.CLASSES_SEEN[className] = true;
